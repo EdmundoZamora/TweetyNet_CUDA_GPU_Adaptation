@@ -1,0 +1,6 @@
+{
+    "lr":0.005, 
+    "batch_size":256,
+    "epochs":1,
+    "outdir":"data/out"
+}
