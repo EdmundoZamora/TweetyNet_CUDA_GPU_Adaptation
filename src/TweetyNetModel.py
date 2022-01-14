@@ -318,10 +318,10 @@ class TweetyNetModel(nn.Module):
                              temp_uids.append(str(j) + "_" + u)
                              files.append(u)
                     temp_uids = np.array(temp_uids)
-                zero_pred = output[:, 0, :].cpu().detach().to_numpy_array()
-                one_pred = output[:, 1, :].cpu().detach().to_numpy_array()
+                zero_pred = output[:, 0, :].cpu().detach().numpy()
+                one_pred = output[:, 1, :].cpu().detach().numpy()
 
-                pred = torch.argmax(output, dim=1).cpu().detach().to_numpy_array() # causing problems
+                pred = torch.argmax(output, dim=1).cpu().detach().numpy() # causing problems
                 #pred = longtensor.numpy()
                 #print(pred) # to numpy
 
