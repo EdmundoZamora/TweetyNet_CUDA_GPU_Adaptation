@@ -309,7 +309,7 @@ class TweetyNetModel(nn.Module):
                 temp_uids = []
                 files = []
                 if self.binary: # weakly labeled
-                    labels = torch.from_numpy((np.array([[x] * output.shape[-1] for x in labels])))
+                    labels = torch.from_numpy((np.array([[x] * output.shape[-1] for x in labels]))).cpu().detach().numpy()
                     temp_uids = np.array([[x] * output.shape[-1] for x in uids])
                     files.append(u)
                 else:  # in the case of strongly labeled data
@@ -324,12 +324,17 @@ class TweetyNetModel(nn.Module):
                 pred = torch.argmax(output, dim=1).cpu().detach().numpy() # causing problems
                 #pred = longtensor.numpy()
                 #print(pred) # to numpy
-                print(type(temp_uids))
+                print(type(temp_uids)) 
                 print(type(files))
                 print(type(zero_pred))
                 print(type(one_pred))
                 print(type(pred))
                 print(type(labels))
+                #<class 'numpy.ndarray'> 
+                #<class 'list'>
+                #<class 'numpy.ndarray'> 
+                #<class 'numpy.ndarray'> 
+                #<class 'torch.Tensor'> 
                 d = {"uid": temp_uids.flatten(),"file":files, "zero_pred": zero_pred.flatten(), "one_pred": one_pred.flatten(), "pred": pred.flatten(),"label": labels.flatten()}
                 new_preds = pd.DataFrame(d)
 
