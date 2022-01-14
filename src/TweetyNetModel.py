@@ -153,7 +153,7 @@ class TweetyNetModel(nn.Module):
             
         # cwd = os.getcwd() # might have to be inherited from runfile
         # os.chdir(outdir) 
-        #self.print_results(history)  # save to out, saves to wd. works
+        self.print_results(history)  # save to out, saves to wd. works on cpu. get it to work on GPU
         #os.chdir(cwd)
         return history, test_out, start_time, end_time, date_str
 
@@ -297,24 +297,24 @@ class TweetyNetModel(nn.Module):
         with torch.no_grad():
             for i, data in enumerate(test_loader):
                 inputs, labels, uids = data
-                print(type(labels))
-                print(labels)
+                #print(type(labels))
+                #print(labels)
                 inputs = inputs.reshape(inputs.shape[0], 1, inputs.shape[1], inputs.shape[2])
-                print(labels.dtype)
+                #print(labels.dtype)
                 labels = labels.long()
-                print(labels.dtype)
-                print(labels)
+                #print(labels.dtype)
+                #print(labels)
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
 
                 output = self.model(inputs) # what is this output look like?
                 #print(output)
-                print(type(labels))
+                #print(type(labels))
                 temp_uids = []
                 files = []
                 if self.binary: # weakly labeled
                     print("binar")
                     labels = np.array([[x] * output.shape[-1] for x in labels]) #removed torch.from_numpy()
-                    print(labels)
+                    #print(labels)
                     temp_uids = np.array([[x] * output.shape[-1] for x in uids])
                     files.append(u)
                 else:  # in the case of strongly labeled data
@@ -324,8 +324,8 @@ class TweetyNetModel(nn.Module):
                              temp_uids.append(str(j) + "_" + u)
                              files.append(u)
                     temp_uids = np.array(temp_uids)
-                print(type(labels))
-                print(labels)
+                #print(type(labels))
+                #print(labels)
                 labels = labels.cpu().detach().numpy()
                 zero_pred = output[:, 0, :].cpu().detach().numpy()
                 one_pred = output[:, 1, :].cpu().detach().numpy()
