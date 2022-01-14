@@ -309,7 +309,7 @@ class TweetyNetModel(nn.Module):
                 temp_uids = []
                 files = []
                 if self.binary: # weakly labeled
-                    labels = torch.from_numpy((np.array([[x] * output.shape[-1] for x in labels]))).cpu().detach().numpy()
+                    labels = np.array([[x] * output.shape[-1] for x in labels]) #removed torch.from_numpy()
                     temp_uids = np.array([[x] * output.shape[-1] for x in uids])
                     files.append(u)
                 else:  # in the case of strongly labeled data
@@ -318,6 +318,7 @@ class TweetyNetModel(nn.Module):
                              temp_uids.append(str(j) + "_" + u)
                              files.append(u)
                     temp_uids = np.array(temp_uids)
+                labels = labels.cpu().detach().numpy()
                 zero_pred = output[:, 0, :].cpu().detach().numpy()
                 one_pred = output[:, 1, :].cpu().detach().numpy()
 
@@ -335,6 +336,9 @@ class TweetyNetModel(nn.Module):
                 #<class 'numpy.ndarray'> 
                 #<class 'numpy.ndarray'> 
                 #<class 'torch.Tensor'> 
+                # pip install torch_tb_profiler
+                # different models
+                # trace data ingestion, debuggertool
                 d = {"uid": temp_uids.flatten(),"file":files, "zero_pred": zero_pred.flatten(), "one_pred": one_pred.flatten(), "pred": pred.flatten(),"label": labels.flatten()}
                 new_preds = pd.DataFrame(d)
 
