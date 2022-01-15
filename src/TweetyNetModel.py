@@ -188,8 +188,8 @@ class TweetyNetModel(nn.Module):
             
             for i, data in enumerate(train_loader,0):
                 inputs, labels, _ = data
-                print(type(input))
-                print(type(labels))
+                #print(type(input))
+                #print(type(labels))
                 inputs = inputs.reshape(inputs.shape[0], 1, inputs.shape[1], inputs.shape[2])
                 
                 #print(labels.dtype)
@@ -333,12 +333,14 @@ class TweetyNetModel(nn.Module):
                 pred = torch.argmax(output, dim=1).cpu().detach().numpy() # causing problems
                 #pred = longtensor.numpy()
                 #print(pred) # to numpy
+                '''
                 print(type(temp_uids)) 
                 print(type(files))
                 print(type(zero_pred))
                 print(type(one_pred))
                 print(type(pred))
                 print(type(labels))
+                '''
                 #<class 'numpy.ndarray'> 
                 #<class 'list'>
                 #<class 'numpy.ndarray'> 

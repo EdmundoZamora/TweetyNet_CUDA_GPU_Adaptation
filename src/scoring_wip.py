@@ -87,8 +87,66 @@ for i in range(1):
     except:
         continue
 
+
 #region
 curr_file = wav[0] 
+evals['acc'] = (evals['pred']==evals['label']).astype(int)
+
+evals['cfnmtx'] = ''
+evals.loc[(evals['pred'] == 0) & (evals['label'] == 1), 'cfnmtx'] = 'FN'
+evals.loc[(evals['pred'] == 0) & (evals['label'] == 0), 'cfnmtx'] = 'TN'
+evals.loc[(evals['pred'] == 1) & (evals['label'] == 0), 'cfnmtx'] = 'FP'
+evals.loc[(evals['pred'] == 1) & (evals['label'] == 1), 'cfnmtx'] = 'TP'
+
 file_filt = evals[evals['file'] == curr_file]
 file_filt.to_csv(os.path.join("data/out","nips4b_birds_classificationfile001.csv"))
 #endregion
+
+def perf_measure(y_actual, y_hat):
+    TP = 0
+    FP = 0
+    TN = 0
+    FN = 0
+
+    for i in range(len(y_hat)): 
+        if y_actual[i]==y_hat[i]==1:
+           TP += 1
+        elif y_hat[i]==1 and y_actual[i]!=y_hat[i]:
+           FP += 1
+        elif y_actual[i]==y_hat[i]==0:
+           TN += 1
+        else: # y_hat[i]==0 and y_actual[i]!=y_hat[i]:
+           FN += 1
+
+    return(f"TP: {TP}, FP: {FP}, TN: {TN}, FN: {FN}")
+
+def confusion_matrix(df: pd.DataFrame, col1: str, col2: str):
+    """
+    Given a dataframe with at least
+    two categorical columns, create a 
+    confusion matrix of the count of the columns
+    cross-counts
+    
+    use like:
+    
+    >>> confusion_matrix(test_df, 'actual_label', 'predicted_label')
+    """
+    return (
+            df
+            .groupby([col1, col2])
+            .size()
+            .unstack(fill_value=0)
+            )
+
+print('\n')
+print('---------------------------------------------------------------------')
+print('\n')
+print(perf_measure(file_filt['pred'].values, file_filt['label'].values))
+print('\n')
+print('correct')
+print('\n')
+print(confusion_matrix(file_filt,'pred','label'))
+print('\n')
+print(file_filt['cfnmtx'].value_counts())
+print('\n')
+print('---------------------------------------------------------------------')
