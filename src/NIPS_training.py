@@ -247,7 +247,7 @@ def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_s
     # device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using {name} ")# torch.cuda.get_device_name(0)
     
-    model = TweetyNetModel(len(Counter(all_tags)), (1, n_mels, 216), device, binary=False)
+    model = TweetyNetModel(len(Counter(all_tags)), (1, n_mels, 216), device, batchsize = batch_size, binary=False)
     model = model.cuda()
 
     print(model.device)

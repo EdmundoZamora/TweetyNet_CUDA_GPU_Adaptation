@@ -30,7 +30,7 @@ class TweetyNetModel(nn.Module):
     #       ex: (1, 1025, 88) where (# channels, # of frequency bins/mel bands, # of frames)
     #       device: "cuda" or "cpu" to specify if machine will run on gpu or cpu.
     # output: None
-    def __init__(self, num_classes, input_shape, device, epochs = 1, binary=False, criterion=None, optimizer=None):
+    def __init__(self, num_classes, input_shape, device, epochs = 1,batchsize = 32, binary=False, criterion=None, optimizer=None):
         super(TweetyNetModel, self).__init__()
 
         self.model = TweetyNet(num_classes=num_classes,
@@ -56,7 +56,7 @@ class TweetyNetModel(nn.Module):
         self.criterion = criterion if criterion is not None else torch.nn.CrossEntropyLoss().to(device)
         self.optimizer = optimizer if optimizer is not None else torch.optim.Adam(params=self.model.parameters())
         self.epochs = epochs
-        self.batchsize = 32
+        self.batchsize = batchsize
         self.n_train_examples = self.batchsize *30 
         self.n_valid_examples = self.batchsize *10 
         
