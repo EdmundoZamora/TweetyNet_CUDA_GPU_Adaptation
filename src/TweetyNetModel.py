@@ -30,7 +30,7 @@ class TweetyNetModel(nn.Module):
     #       ex: (1, 1025, 88) where (# channels, # of frequency bins/mel bands, # of frames)
     #       device: "cuda" or "cpu" to specify if machine will run on gpu or cpu.
     # output: None
-    def __init__(self, num_classes, input_shape, device, epochs = 1,batchsize = 32, binary=False, criterion=None, optimizer=None):
+    def __init__(self, num_classes, input_shape, device = torch.cuda.device('cuda'), epochs = 1,batchsize = 32, binary=False, criterion=None, optimizer=None):
         super(TweetyNetModel, self).__init__()
 
         self.model = TweetyNet(num_classes=num_classes,
@@ -48,12 +48,12 @@ class TweetyNetModel(nn.Module):
                                rnn_dropout=0.,
                                num_layers=1
                                )
-        self.device = device
-        self.model.to(device)
+        self.device = torch.cuda.current_device()
+        self.model.to(self.device)
         self.binary = binary
         self.window_size = input_shape[-1]
         self.runtime = 0
-        self.criterion = criterion if criterion is not None else torch.nn.CrossEntropyLoss().to(device)
+        self.criterion = criterion if criterion is not None else torch.nn.CrossEntropyLoss().to(self.device)
         self.optimizer = optimizer if optimizer is not None else torch.optim.Adam(params=self.model.parameters())
         self.epochs = epochs
         self.batchsize = batchsize
@@ -89,15 +89,15 @@ class TweetyNetModel(nn.Module):
         if show_plots:
             plt.show()
 
-        plt.figure(figsize=(9, 6))
-        plt.title("Edit Distance")
-        plt.plot(history["edit_distance"])
-        plt.plot(history["val_edit_distance"])
-        plt.legend(["edit_distance", "val_edit_distance"])
-        if save_plots:
-            plt.savefig('edit_distance.png')
-        if show_plots:
-            plt.show()
+        # plt.figure(figsize=(9, 6))
+        # plt.title("Edit Distance")
+        # plt.plot(history["edit_distance"])
+        # plt.plot(history["val_edit_distance"])
+        # plt.legend(["edit_distance", "val_edit_distance"])
+        # if save_plots:
+        #     plt.savefig('edit_distance.png')
+        # if show_plots:
+        #     plt.show()
 
     def reset_weights(self):
         for name, module in self.model.named_children():
@@ -172,8 +172,8 @@ class TweetyNetModel(nn.Module):
                    "val_loss": [],
                    "acc": [],
                    "val_acc": [],
-                   "edit_distance": [],
-                   "val_edit_distance": [],
+                #    "edit_distance": [],
+                #    "val_edit_distance": [],
                    "best_weights" : 0
                    }
         #add in early stopping criteria and saving best weights at each epoch
@@ -198,8 +198,12 @@ class TweetyNetModel(nn.Module):
 
                 #inputs = torch.LongTensor(inputs).cuda()
                 #labels = torch.LongTensor(labels).cuda()
-
+                print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+                print(f'device in training step {torch.cuda.get_device_name(self.device)}')
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
+                print(f'are inputs from training step in GPU? {inputs.is_cuda}')
+                print(f'are labels from training step in GPU? {labels.is_cuda}')
+                print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
                 #print(inputs.type())
 
                 # print(labels.type())
@@ -223,17 +227,26 @@ class TweetyNetModel(nn.Module):
 
                 # get statistics
                 running_loss += loss.item()
-                output = torch.argmax(output, dim=1)
-                correct += (output == labels).float().sum()
-                for j in range(len(labels)):
-                    edit_distance += syllable_edit_distance(output[j], labels[j])
+
+                #argmax or max??? arg returns the indices and max just the element
+                output = torch.max(output, dim=1)[1].squeeze()#.cpu().detach().numpy() #returns max index
+                # print(f'argmax of output {output}')
+                # return
+                correct += (output == labels).float().sum().cpu().detach().numpy()
+
+                print(f'running loss type {type(running_loss)}')
+                print(f'correct type {type(correct)}')
+
+                # causing issue FLAG
+                # for j in range(len(labels)):
+                    # edit_distance += syllable_edit_distance(output[j], labels[j])
 
                 # print update Improve this to make it better Maybe a global counter
                 if i % 10 == 9:  # print every 10 mini-batches
                     print('[%d, %5d] loss: %.3f' % (e + 1, i + 1, running_loss ))
             history["loss"].append(running_loss)
             history["acc"].append(100 * correct / (len(train_loader.dataset) * self.window_size))
-            history["edit_distance"].append(edit_distance / (len(train_loader.dataset) * self.window_size))
+            # history["edit_distance"].append(edit_distance / (len(train_loader.dataset) * self.window_size))
             if val_loader != None:
                 self.validation_step(val_loader, history)
         print('Finished Training')
@@ -258,7 +271,15 @@ class TweetyNetModel(nn.Module):
                 print(labels.dtype)
                 labels = labels.long()
                 print(labels.dtype)
+
+                # inputs, labels = inputs.to(self.device), labels.to(self.device)
+
+                print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+                print(f'device in training step {torch.cuda.get_device_name(self.device)}')
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
+                print(f'are validation inputs from training step in GPU? {inputs.is_cuda}')
+                print(f'are validation labels from training step in GPU? {labels.is_cuda}')
+                print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
 
                 output = self.model(inputs)
                 #if self.binary:
@@ -266,14 +287,17 @@ class TweetyNetModel(nn.Module):
                 loss = self.criterion(output, labels)
                 # get statistics
                 val_loss += loss.item()
-                output = torch.argmax(output, dim=1)
 
-                val_correct += (output == labels).float().sum()
-                for j in range(len(labels)):
-                    val_edit_distance += syllable_edit_distance(output[j], labels[j])
+                #argmax or max??? arg returns the indices and max just the element
+                output = torch.max(output, dim=1)[1].squeeze()#.squeeze()#[1].squeeze()#.cpu().detach().numpy()
+                # print(output)
+
+                val_correct += (output == labels).float().sum().cpu().detach().numpy()
+                # for j in range(len(labels)):
+                #     val_edit_distance += syllable_edit_distance(output[j], labels[j])
             history["val_loss"].append(val_loss)
             history["val_acc"].append(100 * val_correct / (len(val_loader.dataset) * self.window_size))
-            history["val_edit_distance"].append(val_edit_distance / (len(val_loader.dataset) * self.window_size))
+            # history["val_edit_distance"].append(val_edit_distance / (len(val_loader.dataset) * self.window_size))
             if history["val_acc"][-1] > history["best_weights"]:
                 torch.save(self.model.state_dict(), "best_model_weights.h5")
                 history["best_weights"] = history["val_acc"][-1]
@@ -312,7 +336,7 @@ class TweetyNetModel(nn.Module):
                 temp_uids = []
                 files = []
                 if self.binary: # weakly labeled
-                    print("binar")
+                    print("binary")
                     labels = np.array([[x] * output.shape[-1] for x in labels]) #removed torch.from_numpy()
                     #print(labels)
                     temp_uids = np.array([[x] * output.shape[-1] for x in uids])

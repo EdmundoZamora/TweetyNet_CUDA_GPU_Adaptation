@@ -20,8 +20,11 @@ def syllable_edit_distance(pred, actual):
         distances_ = [i2 + 1]
         for i1, c1 in enumerate(pred):
             if c1 == c2:
+                print('c1 == c2')
                 distances_.append(distances[i1])
+                print(f'len of distances {len(distances)}')
             else:
+                print('c1 != c2')
                 distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
         distances = distances_
     return distances[-1]  # /len(pred)

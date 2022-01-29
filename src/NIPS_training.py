@@ -107,8 +107,8 @@ def calc_Y(x, sr, spc, annotation, tags, frame_size, hop_length, nonBird_labels,
 def split_dataset(X, Y, test_size=0.2, random_state=0):
     split_generator = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=random_state)
     ind_train, ind_test = next(split_generator.split(X, Y))
-    X_train, X_test = X[ind_train, :, :], X[ind_test, :, :]
-    Y_train, Y_test = Y[ind_train], Y[ind_test]
+    X_train, X_test = X[ind_train, :, :], X[ind_test, :, :] # questionable
+    Y_train, Y_test = Y[ind_train], Y[ind_test] # questionable
     return ind_train, ind_test
 
 def get_pos_total(Y):
@@ -191,11 +191,25 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     # print(X_train.shape, Y_train.shape, uids_train.shape)
     # print(X_val.shape, Y_val.shape, uids_val.shape)
     #create tensors
-    X_train = torch.FloatTensor(X_train).cuda()
-    X_val = torch.FloatTensor(X_val).cuda()
-    Y_train = torch.LongTensor(Y_train).cuda()
-    Y_val = torch.LongTensor(Y_val).cuda()
 
+    #if torch.cuda.is_available(): #get this to work, does not detect gpu. works on tweety env(slow)
+    device = torch.cuda.device('cuda:0')
+    # print(f'device {device.get_device_name()}')
+    print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+    name = torch.cuda.get_device_name(device)
+    # device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"Using {name} ")# torch.cuda.get_device_name(0)
+
+    X_train = torch.FloatTensor(X_train).to(torch.cuda.current_device())#.cuda()
+    X_val = torch.FloatTensor(X_val).to(torch.cuda.current_device())#.cuda()
+    Y_train = torch.LongTensor(Y_train).to(torch.cuda.current_device())#.cuda()
+    Y_val = torch.LongTensor(Y_val).to(torch.cuda.current_device())#.cuda()
+
+    print(f'is X_train on GPU? {X_train.is_cuda}')
+    print(f'is X_val on GPU? {X_val.is_cuda}')
+    print(f'is Y_train on GPU? {Y_train.is_cuda}')
+    print(f'is Y_val on GPU? {Y_val.is_cuda}')
+    print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
     # print('---------------------------------')
     # print('\n')
     # print(X_train)
@@ -214,6 +228,12 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
     #test_dataset = CustomAudioDataset(X_test[:6], Y_test[:6], uids_test[:6])
     val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
+    # train_dataset.to(device)
+    # val_dataset.to(device)
+
+    # print(f'is train_dataset on GPU? {train_dataset.is_cuda}')
+    # print(f'is val_dataset on GPU? {train_dataset.is_cuda}')
+
     # print('\n')
     # print('---------------------------------')
     # #print(train_dataset[:])
@@ -242,18 +262,25 @@ def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_s
     os.chdir(outdir)
 
     #if torch.cuda.is_available(): #get this to work, does not detect gpu. works on tweety env(slow)
-    device = torch.device('cuda:0')
-    name = torch.cuda.get_device_name()
+    device = torch.cuda.device('cuda')
+    print(f'device {torch.cuda.get_device_name(device)}')
+    name = torch.cuda.get_device_name(device)
     # device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using {name} ")# torch.cuda.get_device_name(0)
     
     model = TweetyNetModel(len(Counter(all_tags)), (1, n_mels, 216), device, batchsize = batch_size, binary=False)
-    model = model.cuda()
+    # model = 
+    # model.cuda()
+    model.to(torch.cuda.current_device())#()
 
-    print(model.device)
+    # print(f'is model in GPU? {model.is_cuda}')
+
+    print(torch.cuda.get_device_name(model.device))
     for i in model.parameters():
+        # print('model param')
+        # print(i)
         print(i.is_cuda)
-    next(model.parameters()).cuda()
+    next(model.parameters()).to(torch.cuda.current_device())#.cuda()
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
