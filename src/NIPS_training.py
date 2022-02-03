@@ -103,7 +103,6 @@ def calc_Y(x, sr, spc, annotation, tags, frame_size, hop_length, nonBird_labels,
             found[str(annotation["tag"][i])] += 1
     return y
 
-
 def split_dataset(X, Y, test_size=0.2, random_state=0):
     split_generator = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=random_state)
     ind_train, ind_test = next(split_generator.split(X, Y))
@@ -144,8 +143,10 @@ def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_
         dataset = compute_feature(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found)
         with open(mel_dump_file, "wb") as f:
             pickle.dump(dataset, f)
+
     inds = [i for i, x in enumerate(dataset["X"]) if x.shape[1] == 216]
     X = np.array([dataset["X"][i].transpose() for i in inds]).astype(np.float32)/255
+    # X = np.array([np.rot90(dataset["X"][i],3) for i in inds]).astype(np.float32)/255
     Y = np.array([dataset["Y"][i] for i in inds])
     uids = np.array([dataset["uids"][i] for i in inds])
 
@@ -191,6 +192,8 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     # print(X_train.shape, Y_train.shape, uids_train.shape)
     # print(X_val.shape, Y_val.shape, uids_val.shape)
     #create tensors
+    # print(X_train.shape) #100, 216, 72
+    # return 
 
     #if torch.cuda.is_available(): #get this to work, does not detect gpu. works on tweety env(slow)
     device = torch.cuda.device('cuda:0')
@@ -199,6 +202,10 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     name = torch.cuda.get_device_name(device)
     # device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using {name} ")# torch.cuda.get_device_name(0)
+    
+    #1) batch the X_train
+    #For ex, batch_size=5 means that each batch is gonna be (5, 216, 72)
+    #2) specify in the model that the input is (216, 72)
 
     X_train = torch.FloatTensor(X_train).to(torch.cuda.current_device())#.cuda()
     X_val = torch.FloatTensor(X_val).to(torch.cuda.current_device())#.cuda()

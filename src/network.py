@@ -139,7 +139,7 @@ class TweetyNet(nn.Module):
         self.input_shape = input_shape
 
         self.cnn = nn.Sequential(
-            Conv2dTF(in_channels=self.input_shape[0],
+            Conv2dTF(in_channels=self.input_shape[0], # this should be 216 by 72
                      out_channels=conv1_filters,
                      kernel_size=conv1_kernel_size,
                      padding=padding

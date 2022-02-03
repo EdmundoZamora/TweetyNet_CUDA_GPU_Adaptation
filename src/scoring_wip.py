@@ -3,6 +3,7 @@ import numpy as np
 import os
 import re
 from tabulate import tabulate
+
 '''
 Scoring Precision and Recall is currently a work in progress for Q2
 '''
@@ -64,7 +65,7 @@ Scoring Precision and Recall is currently a work in progress for Q2
 -> measure presicion and recall
 '''
 
-evals = pd.read_csv(os.path.join("data/out","Evaluation_on_data.csv")) #r"data\out\Evaluation_on_data.csv") 
+evals = pd.read_csv(r"data\out\Evaluation_on_data.csv") #os.path.join("data\out","Evaluation_on_data.csv")) #
 dc = evals.copy(deep=True)
 wav = evals['file'].drop_duplicates() 
 wav.index = dc['file'].drop_duplicates().str[-7:-4].values

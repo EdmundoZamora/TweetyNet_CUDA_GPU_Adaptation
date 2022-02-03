@@ -198,12 +198,20 @@ class TweetyNetModel(nn.Module):
 
                 #inputs = torch.LongTensor(inputs).cuda()
                 #labels = torch.LongTensor(labels).cuda()
-                print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-                print(f'device in training step {torch.cuda.get_device_name(self.device)}')
+
+
+
+                # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+                # print(f'device in training step {torch.cuda.get_device_name(self.device)}')
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
-                print(f'are inputs from training step in GPU? {inputs.is_cuda}')
-                print(f'are labels from training step in GPU? {labels.is_cuda}')
-                print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+                # print(f'are inputs from training step in GPU? {inputs.is_cuda}')
+                # print(f'are labels from training step in GPU? {labels.is_cuda}')
+                # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+                print(f'shape input in train{inputs.shape}')
+                print(f'EPOCH {e}')
+
+
+
                 #print(inputs.type())
 
                 # print(labels.type())
@@ -216,6 +224,7 @@ class TweetyNetModel(nn.Module):
                 #print(labels.shape[0])
 
                 output = self.model(inputs)   # ones and zeros, temporal bird annotations.
+                # 5,216,72
                 # print(output)
                 #if self.binary:
                 #    labels = torch.from_numpy((np.array([[x] * output.shape[-1] for x in labels])))
@@ -229,13 +238,17 @@ class TweetyNetModel(nn.Module):
                 running_loss += loss.item()
 
                 #argmax or max??? arg returns the indices and max just the element
-                output = torch.max(output, dim=1)[1].squeeze()#.cpu().detach().numpy() #returns max index
+                output = torch.max(output, dim=1)[1].squeeze() #.cpu().detach().numpy() #returns max index
+                print(f"shape in train {output.shape}")
+                # return 
                 # print(f'argmax of output {output}')
                 # return
                 correct += (output == labels).float().sum().cpu().detach().numpy()
+                # print(correct)
+                # return
 
-                print(f'running loss type {type(running_loss)}')
-                print(f'correct type {type(correct)}')
+                # print(f'running loss type {type(running_loss)}')
+                # print(f'correct type {type(correct)}')
 
                 # causing issue FLAG
                 # for j in range(len(labels)):
@@ -268,18 +281,19 @@ class TweetyNetModel(nn.Module):
             for i, data in enumerate(val_loader):
                 inputs, labels, _ = data
                 inputs = inputs.reshape(inputs.shape[0], 1, inputs.shape[1], inputs.shape[2])
-                print(labels.dtype)
+                # print(labels.dtype)
                 labels = labels.long()
-                print(labels.dtype)
+                # print(labels.dtype)
 
                 # inputs, labels = inputs.to(self.device), labels.to(self.device)
 
-                print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-                print(f'device in training step {torch.cuda.get_device_name(self.device)}')
+                # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+                # print(f'device in training step {torch.cuda.get_device_name(self.device)}')
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
-                print(f'are validation inputs from training step in GPU? {inputs.is_cuda}')
-                print(f'are validation labels from training step in GPU? {labels.is_cuda}')
-                print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+                # print(f'are validation inputs from training step in GPU? {inputs.is_cuda}')
+                # print(f'are validation labels from training step in GPU? {labels.is_cuda}')
+                # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+                print(f'input shape in val {inputs.shape}')
 
                 output = self.model(inputs)
                 #if self.binary:
@@ -290,7 +304,7 @@ class TweetyNetModel(nn.Module):
 
                 #argmax or max??? arg returns the indices and max just the element
                 output = torch.max(output, dim=1)[1].squeeze()#.squeeze()#[1].squeeze()#.cpu().detach().numpy()
-                # print(output)
+                print(f'output shape in val {output}')
 
                 val_correct += (output == labels).float().sum().cpu().detach().numpy()
                 # for j in range(len(labels)):
@@ -330,7 +344,8 @@ class TweetyNetModel(nn.Module):
                 #print(labels)
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
 
-                output = self.model(inputs) # what is this output look like?
+                output = self.model(inputs) # what is this output look like?, specify batch size here?
+                print(output.shape) # 100, value (torch.Size([41,2,216]))
                 #print(output)
                 #print(type(labels))
                 temp_uids = []
@@ -354,7 +369,11 @@ class TweetyNetModel(nn.Module):
                 zero_pred = output[:, 0, :].cpu().detach().numpy()
                 one_pred = output[:, 1, :].cpu().detach().numpy()
 
-                pred = torch.argmax(output, dim=1).cpu().detach().numpy() # causing problems
+                # Are we getting the correct prediction? in the sense that its the predictions calculated not something else?
+                pred = torch.max(output, dim=1)[1].squeeze().cpu().detach().numpy() # causing problems
+                # print(type(pred))
+                # print(pred.dtype)
+                # return
                 #pred = longtensor.numpy()
                 #print(pred) # to numpy
                 '''
