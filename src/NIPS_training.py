@@ -28,6 +28,8 @@ from torch.utils.data import Dataset
 from CustomAudioDataset import CustomAudioDataset
 from TweetyNetModel import TweetyNetModel
 
+import matplotlib.pyplot as plt
+
 def get_frames(x, frame_size, hop_length):
     return ((x) / hop_length) + 1 #(x - frame_size)/hop_length + 1
 def frames2seconds(x, sr):
@@ -145,8 +147,9 @@ def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_
             pickle.dump(dataset, f)
 
     inds = [i for i, x in enumerate(dataset["X"]) if x.shape[1] == 216]
-    X = np.array([dataset["X"][i].transpose() for i in inds]).astype(np.float32)/255
-    # X = np.array([np.rot90(dataset["X"][i],3) for i in inds]).astype(np.float32)/255
+    # X = np.array([dataset["X"][i].transpose() for i in inds]).astype(np.float32)/255 # not 
+    # X = np.array([dataset["X"][i] for i in inds]).astype(np.float32)/255
+    X = np.array([np.rot90(dataset["X"][i],3) for i in inds]).astype(np.float32)/255 # over traing, with norm label, .005 lr, 5, bs, 500 E
     Y = np.array([dataset["Y"][i] for i in inds])
     uids = np.array([dataset["uids"][i] for i in inds])
 
@@ -164,6 +167,22 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     print("IGNORE MISSING WAV FILES - THEY DONT EXIST")
     # load_data_set returns variables which get fed into model builder 
     X, Y, uids = load_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, use_dump=True)
+    # print(f'X shape {X.shape}') #number of birds, rows of each data column of each data.
+    # print(f'len of X {len(X)}')
+    # bird1 = X[0] #data point, [0][0] feature value of dp, yes
+    # print(bird1)
+    # print(f'len of bird1 {len(bird1)}') # 216
+    # print(f'shape of bird1 {bird1.shape}') # 216,72, r,c frequency bins, time bins
+    # print(f'arrays inside bird1 {len(X[0][0])}') # 72
+    # print(f'shape of bird1 first array {X[0][0].shape}')
+    # print(f'bird1 uid {uids[0]}')
+    # print(f'number of different birds {len(uids)}')
+    # spec = librosa.display.specshow(bird1, hop_length = HOP_LENGTH,sr = SR, y_axis='mel', x_axis='time') # displays rotated
+    # print(spec)
+    # plt.show()
+    # return
+
+
     print("\n")
     print("----------------------------------------------------------------------------------------------")
     test_dataset = CustomAudioDataset(X, Y, uids)
@@ -279,6 +298,7 @@ def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_s
     # model = 
     # model.cuda()
     model.to(torch.cuda.current_device())#()
+    model.train()
 
     # print(f'is model in GPU? {model.is_cuda}')
 

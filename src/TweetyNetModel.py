@@ -18,7 +18,6 @@ from CustomAudioDataset import CustomAudioDataset
 from datetime import datetime
 
 
-
 """
 Helper Functions to TweetyNet so it feels more like a Tensorflow Model.
 This includes instantiating the model, training the model and testing. 
@@ -190,10 +189,13 @@ class TweetyNetModel(nn.Module):
                 inputs, labels, _ = data
                 #print(type(input))
                 #print(type(labels))
-                inputs = inputs.reshape(inputs.shape[0], 1, inputs.shape[1], inputs.shape[2])
-                
+                # print(f'before reshape{inputs.shape}') #tutor
+                inputs = inputs.reshape(inputs.shape[0],1, inputs.shape[1], inputs.shape[2])
+                # print(f'post reshape{inputs.shape}') # tutor
                 #print(labels.dtype)
-                #labels = labels.long()
+                # labels = labels.float()
+                # labels = labels.long() # remove
+                # lab
                 #print(labels.dtype)
 
                 #inputs = torch.LongTensor(inputs).cuda()
@@ -204,11 +206,14 @@ class TweetyNetModel(nn.Module):
                 # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
                 # print(f'device in training step {torch.cuda.get_device_name(self.device)}')
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
+                
+                # print(f'labels shape in train {labels.shape}')# tutor
+
                 # print(f'are inputs from training step in GPU? {inputs.is_cuda}')
                 # print(f'are labels from training step in GPU? {labels.is_cuda}')
                 # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-                print(f'shape input in train{inputs.shape}')
-                print(f'EPOCH {e}')
+                # print(f'shape inputs in train {inputs.shape}') # tutor
+                # print(f'EPOCH {e}')
 
 
 
@@ -217,32 +222,44 @@ class TweetyNetModel(nn.Module):
                 # print(labels.type())
                 #print(inputs)
                 
-                self.optimizer.zero_grad()
+                
+                self.optimizer.zero_grad()# curr
 
                 # labels = labels.to(self.device)
                 #print(inputs.shape[0])
                 #print(labels.shape[0])
 
                 output = self.model(inputs)   # ones and zeros, temporal bird annotations.
+                # print(f'output shape in train {output.shape}')
+                # output = output.reshape(labels.shape[0], labels.shape[1]) #tutor
+                # print(output.shape)
+                # return
                 # 5,216,72
                 # print(output)
                 #if self.binary:
                 #    labels = torch.from_numpy((np.array([[x] * output.shape[-1] for x in labels])))
-                
+
+                # print(output.requires_grad) #tutor
+
                 loss = self.criterion(output, labels)
                 loss.backward()
+
+                # print(output.requires_grad)
+                # self.optimizer.zero_grad() # tutor
                 self.optimizer.step()
                 scheduler.step()
 
                 # get statistics
+                # running_loss = loss.item() # tutor
                 running_loss += loss.item()
 
                 #argmax or max??? arg returns the indices and max just the element
-                output = torch.max(output, dim=1)[1].squeeze() #.cpu().detach().numpy() #returns max index
-                print(f"shape in train {output.shape}")
+                output = torch.max(output, dim=1)[1].squeeze() #.cpu().detach().numpy() #returns max index #OG
+                # print(f"shape in train {output.shape}") # tutor
                 # return 
                 # print(f'argmax of output {output}')
                 # return
+                #convert output values to binary.
                 correct += (output == labels).float().sum().cpu().detach().numpy()
                 # print(correct)
                 # return
@@ -257,6 +274,7 @@ class TweetyNetModel(nn.Module):
                 # print update Improve this to make it better Maybe a global counter
                 if i % 10 == 9:  # print every 10 mini-batches
                     print('[%d, %5d] loss: %.3f' % (e + 1, i + 1, running_loss ))
+
             history["loss"].append(running_loss)
             history["acc"].append(100 * correct / (len(train_loader.dataset) * self.window_size))
             # history["edit_distance"].append(edit_distance / (len(train_loader.dataset) * self.window_size))
@@ -280,9 +298,11 @@ class TweetyNetModel(nn.Module):
             val_edit_distance = 0.0
             for i, data in enumerate(val_loader):
                 inputs, labels, _ = data
-                inputs = inputs.reshape(inputs.shape[0], 1, inputs.shape[1], inputs.shape[2])
+                inputs = inputs.reshape(inputs.shape[0],1, inputs.shape[1], inputs.shape[2])
                 # print(labels.dtype)
-                labels = labels.long()
+                #float instead of long
+                # labels = labels.long() # questionable
+                # labels = labels.float() #tutor
                 # print(labels.dtype)
 
                 # inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -293,22 +313,44 @@ class TweetyNetModel(nn.Module):
                 # print(f'are validation inputs from training step in GPU? {inputs.is_cuda}')
                 # print(f'are validation labels from training step in GPU? {labels.is_cuda}')
                 # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-                print(f'input shape in val {inputs.shape}')
+                # print(f'input shape in val {inputs.shape}') # tutor
 
                 output = self.model(inputs)
+                # output = output.reshape(labels.shape[0], labels.shape[1]) #tutor
                 #if self.binary:
                 #    labels = torch.from_numpy((np.array([[x] * output.shape[-1] for x in labels])))
                 loss = self.criterion(output, labels)
+                # check the outputs and labels here too.
                 # get statistics
-                val_loss += loss.item()
+                # val_loss = loss.item() # tutor
+                val_loss += loss.item() #curr
+
+                '''
+                1) You should check that the model is set to model.train() before training
+                2) check that the running_loss is not being accumulated
+                For valid/train
+                3) train for much longer epochs
+                4) scan different learning rates
+                5) print out the output prediction after self.model(inputs) and compare it with the labels
+                While it's training
+                Print a comparison after each 100 epochs
+                Between 1 sample
+                So -> print(output[0])
+                And -> print(labels([0[)
+                '''
 
                 #argmax or max??? arg returns the indices and max just the element
-                output = torch.max(output, dim=1)[1].squeeze()#.squeeze()#[1].squeeze()#.cpu().detach().numpy()
-                print(f'output shape in val {output}')
 
+                output = torch.max(output, dim=1)[1].squeeze()#.squeeze()#[1].squeeze()#.cpu().detach().numpy()
+                # print(f'output shape in val {output}')
+                
+                #convert outputs to binary 0 less than .5
+                # print a comparison after 100 epochs a sample, output of zero and labels zero
                 val_correct += (output == labels).float().sum().cpu().detach().numpy()
+
                 # for j in range(len(labels)):
                 #     val_edit_distance += syllable_edit_distance(output[j], labels[j])
+
             history["val_loss"].append(val_loss)
             history["val_acc"].append(100 * val_correct / (len(val_loader.dataset) * self.window_size))
             # history["val_edit_distance"].append(val_edit_distance / (len(val_loader.dataset) * self.window_size))
@@ -336,16 +378,19 @@ class TweetyNetModel(nn.Module):
             for i, data in enumerate(test_loader):
                 inputs, labels, uids = data
                 #print(type(labels))
-                #print(labels)
+                # print(labels)
                 inputs = inputs.reshape(inputs.shape[0], 1, inputs.shape[1], inputs.shape[2])
                 #print(labels.dtype)
-                labels = labels.long()
+                # labels = labels.long() #questionable, not necessary?, same to squeeze.
                 #print(labels.dtype)
                 #print(labels)
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
+                # print(f'labels shape {labels.shape}')
 
                 output = self.model(inputs) # what is this output look like?, specify batch size here?
-                print(output.shape) # 100, value (torch.Size([41,2,216]))
+                # output = output.reshape(labels.shape[0], labels.shape[1]) # tutor
+                # print(f'Testing step output shape {output.shape}') # 100, value (torch.Size([41,2,216]))
+                # return 
                 #print(output)
                 #print(type(labels))
                 temp_uids = []
@@ -366,11 +411,15 @@ class TweetyNetModel(nn.Module):
                 #print(type(labels))
                 #print(labels)
                 labels = labels.cpu().detach().numpy()
-                zero_pred = output[:, 0, :].cpu().detach().numpy()
-                one_pred = output[:, 1, :].cpu().detach().numpy()
+
+                zero_pred = output[:, 0, :].cpu().detach().numpy()# curr
+                one_pred = output[:, 1, :].cpu().detach().numpy()# curr
 
                 # Are we getting the correct prediction? in the sense that its the predictions calculated not something else?
                 pred = torch.max(output, dim=1)[1].squeeze().cpu().detach().numpy() # causing problems
+                # pred = output.cpu().detach().numpy() # tutor
+                # print(pred) # tutor
+
                 # print(type(pred))
                 # print(pred.dtype)
                 # return
@@ -392,7 +441,9 @@ class TweetyNetModel(nn.Module):
                 # pip install torch_tb_profiler
                 # different models
                 # trace data ingestion, debuggertool
-                d = {"uid": temp_uids.flatten(),"file":files, "zero_pred": zero_pred.flatten(), "one_pred": one_pred.flatten(), "pred": pred.flatten(),"label": labels.flatten()}
+                # d = {"uid": temp_uids.flatten(),"file":files, "pred": pred.flatten(),"label": labels.flatten()} # tutor
+                d = {"uid": temp_uids.flatten(),"file":files,"zero_pred": zero_pred.flatten(), "one_pred": one_pred.flatten(), "pred": pred.flatten(),"label": labels.flatten()}
+
                 new_preds = pd.DataFrame(d)
 
                 predictions = predictions.append(new_preds)

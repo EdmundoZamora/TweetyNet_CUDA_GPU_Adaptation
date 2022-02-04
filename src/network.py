@@ -137,9 +137,9 @@ class TweetyNet(nn.Module):
         super().__init__()
         self.num_classes = num_classes
         self.input_shape = input_shape
-
+        print(f'shape in network {self.input_shape}')
         self.cnn = nn.Sequential(
-            Conv2dTF(in_channels=self.input_shape[0], # this should be 216 by 72
+            Conv2dTF(in_channels= self.input_shape[0],#(self.input_shape[1], self.input_shape[2]), # this should be 216 by 72
                      out_channels=conv1_filters,
                      kernel_size=conv1_kernel_size,
                      padding=padding
@@ -179,7 +179,9 @@ class TweetyNet(nn.Module):
 
         # for self.fc, in_features = hidden_size * 2 because LSTM is bidirectional
         # so we get hidden forward + hidden backward as output
-        self.fc = nn.Linear(in_features=self.hidden_size * 2, out_features=num_classes)
+
+        self.fc = nn.Linear(in_features=self.hidden_size * 2, out_features=num_classes) # curr
+        # self.fc = nn.Linear(in_features=self.hidden_size * 2, out_features=1) #tutor
 
     def forward(self, x):
         features = self.cnn(x)
@@ -192,6 +194,8 @@ class TweetyNet(nn.Module):
         # permute back to (batch, time bins, hidden size) to project features down onto number of classes
         rnn_output = rnn_output.permute(1, 0, 2)
         logits = self.fc(rnn_output)
+
+        # logits = torch.sigmoid(logits) # tutor
         # permute yet again so that dimension order is (batch, classes, time steps)
         # because this is order that loss function expects
         return logits.permute(0, 2, 1)
