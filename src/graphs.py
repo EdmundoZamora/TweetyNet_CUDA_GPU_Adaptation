@@ -5,13 +5,12 @@ import matplotlib.pyplot as pl
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
-def graph(num_graphs):
+def file_graph_temporal(num_graphs):
 
     filenames = os.listdir(r'data\out\separate_evaluations')
     # print(filenames)
     # print(filenames[0][:-4])
-    # os.makedirs(r"data\out\temporal_plots")
+    os.makedirs(r"data\out\temporal_plots")
     for i in range(num_graphs):
         evals = pd.read_csv(os.path.join("data/out/separate_evaluations",filenames[i])) 
 
@@ -59,4 +58,4 @@ def graph(num_graphs):
         # pl.show()
         g.savefig(os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot'))
 
-graph(2)
+# graph(2)

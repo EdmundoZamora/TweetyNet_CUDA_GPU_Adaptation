@@ -1,3 +1,4 @@
 {
-    "outdir":"data/out"
+    "outdir":"data/out",
+    "temporal_graphs":2
 }

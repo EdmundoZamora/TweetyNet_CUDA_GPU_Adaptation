@@ -3,9 +3,11 @@ import sys
 import csv
 import math
 import pickle
+import shutil
 from collections import Counter
 from datetime import datetime
-
+from scoring_wip import*
+from graphs import*
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
@@ -149,7 +151,7 @@ def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_
     inds = [i for i, x in enumerate(dataset["X"]) if x.shape[1] == 216]
     # X = np.array([dataset["X"][i].transpose() for i in inds]).astype(np.float32)/255 # not 
     # X = np.array([dataset["X"][i] for i in inds]).astype(np.float32)/255
-    X = np.array([np.rot90(dataset["X"][i],3) for i in inds]).astype(np.float32)/255 # over traing, with norm label, .005 lr, 5, bs, 500 E
+    X = np.array([np.rot90(dataset["X"][i],3) for i in inds]).astype(np.float32)/255 # over training, with norm label, .005 lr, 5, bs, 500 E
     Y = np.array([dataset["Y"][i] for i in inds])
     uids = np.array([dataset["uids"][i] for i in inds])
 
@@ -278,6 +280,8 @@ def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_s
     
     if Skip:
         for f in os.listdir(outdir):
+            shutil.rmtree(os.path.join(outdir, f),ignore_errors=True)
+        for f in os.listdir(outdir):
             os.remove(os.path.join(outdir, f))
     else:   
         pass
@@ -328,11 +332,17 @@ def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_s
 
     return model, date_str
 
-def evaluate(model,test_dataset, date_str, hop_length, sr, outdir): # How can we evaluauate on a specific wav file though?? and show time in the csv? and time on a spectrorgam? ¯\_(ツ)_/¯
+def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graphs): # How can we evaluauate on a specific wav file though?? and show time in the csv? and time on a spectrorgam? ¯\_(ツ)_/¯
     
     model_weights = os.path.join(outdir,f"model_weights-{date_str}.h5") # time sensitive file title
     tweetynet = model
     test_out, time_segs = tweetynet.test_load_step(test_dataset, hop_length, sr, model_weights=model_weights) 
     test_out.to_csv(os.path.join(outdir,"Evaluation_on_data.csv"))
     time_segs.to_csv(os.path.join(outdir,"Time_intervals.csv"))
+    orig_stdout = sys.stdout
+    sys.stdout = open(os.path.join('data/out','file_score_rates.txt'), 'w')
+    file_score(temporal_graphs)
+    sys.stdout.close()
+    file_graph_temporal(temporal_graphs) # prints scores, remove? or log?
+    sys.stdout = orig_stdout
     return print("Finished Classifcation")

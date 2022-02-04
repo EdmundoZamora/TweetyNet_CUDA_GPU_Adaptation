@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+import sys
 import re
 from tabulate import tabulate
 
@@ -71,58 +72,62 @@ Scoring Precision and Recall is currently a work in progress for Q2
 -> evaluate distance and duration of each real start time to classified frame start times
 -> measure presicion and recall
 '''
+def file_score(num_files):
+        
+    evals = pd.read_csv(r"data\out\Evaluation_on_data.csv") #os.path.join("data\out","Evaluation_on_data.csv")) #
 
-evals = pd.read_csv(r"data\out\Evaluation_on_data.csv") #os.path.join("data\out","Evaluation_on_data.csv")) #
+    os.makedirs(r"data\out\separate_evaluations")
 
-os.makedirs(r"data\out\separate_evaluations")
+    dc = evals.copy(deep=True)
+    wav = evals['file'].drop_duplicates() 
+    wav.index = dc['file'].drop_duplicates().str[-7:-4].values # last three numbers
+    wav = wav.sort_index(ascending = True).values
 
-dc = evals.copy(deep=True)
-wav = evals['file'].drop_duplicates() 
-wav.index = dc['file'].drop_duplicates().str[-7:-4].values # last three numbers
-wav = wav.sort_index(ascending = True).values
+    #region
+    # curr_file = wav[8] 
+    # file_filt = evals[evals['file'] == curr_file]
+    # print(tabulate(file_filt, headers='keys', tablefmt='psql')) 
+    #endregion
+    
+    for i in range(num_files):
+        curr_file = wav[i]
 
-#region
-# curr_file = wav[8] 
-# file_filt = evals[evals['file'] == curr_file]
-# print(tabulate(file_filt, headers='keys', tablefmt='psql')) 
-#endregion
+        file_filt = evals[evals['file'] == curr_file].copy(deep = True)
 
-for i in range(2):
-    curr_file = wav[i]
+        file_filt['acc'] = (file_filt['pred']==file_filt['label']).astype(int)
+        file_filt['cfnmtx'] = ''
+        file_filt.loc[(file_filt['pred'] == 0) & (file_filt['label'] == 1), 'cfnmtx'] = 'FN'
+        file_filt.loc[(file_filt['pred'] == 0) & (file_filt['label'] == 0), 'cfnmtx'] = 'TN'
+        file_filt.loc[(file_filt['pred'] == 1) & (file_filt['label'] == 0), 'cfnmtx'] = 'FP'
+        file_filt.loc[(file_filt['pred'] == 1) & (file_filt['label'] == 1), 'cfnmtx'] = 'TP'
 
-    file_filt = evals[evals['file'] == curr_file].copy(deep = True)
+        # print(tabulate(file_filt, headers='keys', tablefmt='psql'))
+        # break
 
-    file_filt['acc'] = (file_filt['pred']==file_filt['label']).astype(int)
-    file_filt['cfnmtx'] = ''
-    file_filt.loc[(file_filt['pred'] == 0) & (file_filt['label'] == 1), 'cfnmtx'] = 'FN'
-    file_filt.loc[(file_filt['pred'] == 0) & (file_filt['label'] == 0), 'cfnmtx'] = 'TN'
-    file_filt.loc[(file_filt['pred'] == 1) & (file_filt['label'] == 0), 'cfnmtx'] = 'FP'
-    file_filt.loc[(file_filt['pred'] == 1) & (file_filt['label'] == 1), 'cfnmtx'] = 'TP'
-
-    # print(tabulate(file_filt, headers='keys', tablefmt='psql'))
-    # break
-
-    morfi = "annotation_train"+curr_file[-7:-4]+".csv"
-    print(morfi)
-    try:
-        real = pd.read_csv(os.path.join("data/raw/NIPS4B_BIRD_CHALLENGE_TRAIN_TEST_WAV/temporal_annotations_nips4b",morfi))
-        print(tabulate(real, headers='keys', tablefmt='psql'))
-        file_filt.to_csv(os.path.join("data/out/separate_evaluations","nips4b_birds_classificationfile"+curr_file[-7:-4]+".csv"))
-        print('\n')
-        print(f'{morfi} Rates')
-        print('\n')
-        print('---------------------------------------------------------------------')
-        print('\n')
-        # print(confusion_matrix(file_filt,'pred','label'))
-        rates = file_filt.groupby(['pred','label']).size().unstack(fill_value=0)
-        print(rates)
-        print('\n')
-        print(file_filt['cfnmtx'].value_counts())
-        print('\n')
-        print('---------------------------------------------------------------------')
-        print('\n')
-    except:
-        continue
+        morfi = "annotation_train"+curr_file[-7:-4]+".csv"
+        
+        print(morfi)
+        try:
+            real = pd.read_csv(os.path.join("data/raw/NIPS4B_BIRD_CHALLENGE_TRAIN_TEST_WAV/temporal_annotations_nips4b",morfi))
+            print(tabulate(real, headers='keys', tablefmt='psql'))
+            file_filt.to_csv(os.path.join("data/out/separate_evaluations","nips4b_birds_classificationfile"+curr_file[-7:-4]+".csv"))
+            
+            print('\n')
+            print(f'{morfi} Rates')
+            print('\n')
+            print('---------------------------------------------------------------------')
+            print('\n')
+            # print(confusion_matrix(file_filt,'pred','label'))
+            rates = file_filt.groupby(['pred','label']).size().unstack(fill_value=0)
+            print(rates)
+            print('\n')
+            print(file_filt['cfnmtx'].value_counts())
+            print('\n')
+            print('---------------------------------------------------------------------')
+            print('\n')
+            
+        except:
+            continue
 #region
 # def perf_measure(y_actual, y_hat):
 #     TP = 0
@@ -176,3 +181,4 @@ for i in range(2):
 # print('---------------------------------------------------------------------')
 #endregion
 
+# score(2)
