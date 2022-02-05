@@ -181,4 +181,4 @@ def file_score(num_files):
 # print('---------------------------------------------------------------------')
 #endregion
 
-# score(2)
+# file_score(2)

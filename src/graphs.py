@@ -58,4 +58,4 @@ def file_graph_temporal(num_graphs):
         # pl.show()
         g.savefig(os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot'))
 
-# graph(2)
+# file_graph_temporal(2)
