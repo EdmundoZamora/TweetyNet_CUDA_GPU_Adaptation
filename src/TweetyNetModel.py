@@ -194,7 +194,7 @@ class TweetyNetModel(nn.Module):
                 # print(f'post reshape{inputs.shape}') # tutor
                 #print(labels.dtype)
                 # labels = labels.float()
-                # labels = labels.long() # remove
+                labels = labels.long() # comment
                 # lab
                 #print(labels.dtype)
 
@@ -254,7 +254,8 @@ class TweetyNetModel(nn.Module):
                 running_loss += loss.item()
 
                 #argmax or max??? arg returns the indices and max just the element
-                output = torch.max(output, dim=1)[1].squeeze() #.cpu().detach().numpy() #returns max index #OG
+                # output = torch.max(output, dim=1)[1]#.squeeze() #.cpu().detach().numpy() #returns max index #OG
+                output = torch.max(output, dim=1)[1].squeeze()
                 # print(f"shape in train {output.shape}") # tutor
                 # return 
                 # print(f'argmax of output {output}')
@@ -301,7 +302,7 @@ class TweetyNetModel(nn.Module):
                 inputs = inputs.reshape(inputs.shape[0],1, inputs.shape[1], inputs.shape[2])
                 # print(labels.dtype)
                 #float instead of long
-                # labels = labels.long() # questionable
+                labels = labels.long() # parameter
                 # labels = labels.float() #tutor
                 # print(labels.dtype)
 
@@ -341,7 +342,8 @@ class TweetyNetModel(nn.Module):
 
                 #argmax or max??? arg returns the indices and max just the element
 
-                output = torch.max(output, dim=1)[1].squeeze()#.squeeze()#[1].squeeze()#.cpu().detach().numpy()
+                # output = torch.max(output, dim=1)[1]
+                output = torch.max(output, dim=1)[1].squeeze()
                 # print(f'output shape in val {output}')
                 
                 #convert outputs to binary 0 less than .5
@@ -381,7 +383,8 @@ class TweetyNetModel(nn.Module):
                 # print(labels)
                 inputs = inputs.reshape(inputs.shape[0], 1, inputs.shape[1], inputs.shape[2])
                 #print(labels.dtype)
-                # labels = labels.long() #questionable, not necessary?, same to squeeze.
+                # labels = labels.float()
+                labels = labels.long() #questionable, not necessary?, same to squeeze.
                 #print(labels.dtype)
                 #print(labels)
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -417,6 +420,7 @@ class TweetyNetModel(nn.Module):
 
                 # Are we getting the correct prediction? in the sense that its the predictions calculated not something else?
                 pred = torch.max(output, dim=1)[1].squeeze().cpu().detach().numpy() # causing problems
+                # pred = torch.max(output, dim=1)[1].cpu().detach().numpy()
                 # pred = output.cpu().detach().numpy() # tutor
                 # print(pred) # tutor
 
