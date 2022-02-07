@@ -1,0 +1,71 @@
+ON CLUSTER:
+
+make sure ucsd vpn(anyconnect) is running set on all through library(revelle i think, not sure it matters)
+
+ssh into dsmlp
+
+ssh <ucsd_login>@dsmlp-login.ucsd.edu
+
+in base enter the following command
+
+launch-scipy-ml-gpu.sh -i edzamora/tweetynet-project:latest -P Always -c 8 -m 64 -g 1 -v 2080ti -b
+
+image is configured to have right environment.
+
+configured to have 8 cores 64 memory and 1 gpu, v tag specifies which gpu type, if cluster takes a while dont specify gpu. 
+
+-b tag configures it to be a background running pod
+
+use kubesh to go into pod
+
+kubesh <podname>
+
+in pod, git pull the repo
+
+git clone https://github.com/EdmundoZamora/TweetyNet_CUDA_GPU_Adaptation.git  
+
+go into the repo
+
+run the following command
+
+python -u run.py data features model evaluate
+
+after this any following run will be 
+
+python -u run.py skip features model evaluate
+
+the skip arguement tells the file to not re-download the data. also a thing im trying to investigate is deleting the best_weights.h5(in data/out) and downlsampled.pkl(in data/raw)
+
+also on dsmlp check dsmlp status to check which pod you are assigned to.
+
+connecting to cluster on vscode is also a better route and makes data/file transfer better.
+
+to delete a pod, exit to base, and use
+
+kubectl get pods
+
+after list shows enter the following
+
+kubectl delete pod <podname>
+
+ON LOCAL:
+
+set up tweety environment
+
+after pulling the repo and being in the right directory enter the same as above (in vscode)
+
+python -u run.py data features model evaluate
+
+after this any following run will be 
+
+python -u run.py skip features model evaluate
+
+
+FOR BOTH: 
+
+to observe gpu usage enter the following command in another terminal 
+
+nvidia-smi
+
+the table will show % gpu mem usage and temp
+
