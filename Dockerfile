@@ -13,7 +13,8 @@ RUN apt-get -y install git
 # 3) install packages using notebook user
 USER jovyan 
 # RUN conda install -y environment dependencies seen on environment.yaml
-RUN pip install --no-cache-dir pandas numpy vak scipy torch librosa sox multipledispatch
+# docker push
+RUN pip install --no-cache-dir pandas seaborn numpy vak scipy torch librosa sox multipledispatch tabulate
 
 #RUN git clone https://github.com/EdmundoZamora/Methodology5.git
 

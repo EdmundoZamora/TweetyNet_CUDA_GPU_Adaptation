@@ -8,9 +8,10 @@ sys.path.insert(0, 'src')
 # file that gets the data DONE
 # function that applies the features DONE
 # function that builds the model DONE
-# results go into separate files 
-# perform on a docker container <-- current challenge CURR
-# endregion get cuda to work. works on tweety, slow on gpu if epochs low?
+# results go into separate files DONE
+# perform on a docker container DONE
+# get cuda to work. works on tweety, slow on gpu if epochs low? DONE
+#endregion 
 
 import env_setup
 from etl import get_data
