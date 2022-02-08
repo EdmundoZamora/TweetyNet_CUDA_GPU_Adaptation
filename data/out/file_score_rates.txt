@@ -19,16 +19,16 @@ annotation_train001.csv Rates
 ---------------------------------------------------------------------
 
 
-label    0   1
-pred          
-0      139  29
-1       37  11
+label   0   1
+pred         
+0      87   4
+1      89  36
 
 
-TN    139
-FP     37
-FN     29
-TP     11
+FP    89
+TN    87
+TP    36
+FN     4
 Name: cfnmtx, dtype: int64
 
 
@@ -57,14 +57,11 @@ annotation_train002.csv Rates
 
 label    0   1
 pred          
-0      167  14
-1       22  13
+0      189  27
 
 
-TN    167
-FP     22
-FN     14
-TP     13
+TN    189
+FN     27
 Name: cfnmtx, dtype: int64
 
 

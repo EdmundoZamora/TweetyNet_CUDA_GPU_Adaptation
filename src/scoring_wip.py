@@ -74,9 +74,9 @@ Scoring Precision and Recall is currently a work in progress for Q2
 '''
 def file_score(num_files):
         
-    evals = pd.read_csv(r"data\out\Evaluation_on_data.csv") #os.path.join("data\out","Evaluation_on_data.csv")) #
+    evals = pd.read_csv(os.path.join("data","out","Evaluation_on_data.csv")) #os.path.join("data\out","Evaluation_on_data.csv")) #
 
-    os.makedirs(r"data\out\separate_evaluations")
+    os.makedirs(os.path.join("data","out","separate_evaluations"))
 
     dc = evals.copy(deep=True)
     wav = evals['file'].drop_duplicates() 

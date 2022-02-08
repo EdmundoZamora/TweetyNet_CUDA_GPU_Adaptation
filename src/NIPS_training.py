@@ -343,6 +343,7 @@ def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graph
     sys.stdout = open(os.path.join('data/out','file_score_rates.txt'), 'w')
     file_score(temporal_graphs)
     sys.stdout.close()
-    file_graph_temporal(temporal_graphs) # prints scores, remove? or log?
+    file_graph_temporal(temporal_graphs) 
+    file_graph_temporal_rates(temporal_graphs) 
     sys.stdout = orig_stdout
     return print("Finished Classifcation")
