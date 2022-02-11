@@ -82,7 +82,7 @@ def file_score(num_files):
     wav = evals['file'].drop_duplicates() 
     wav.index = dc['file'].drop_duplicates().str[-7:-4].values # last three numbers
     wav = wav.sort_index(ascending = True).values
-
+    # print(wav)
     #region
     # curr_file = wav[8] 
     # file_filt = evals[evals['file'] == curr_file]
@@ -106,10 +106,10 @@ def file_score(num_files):
 
         morfi = "annotation_train"+curr_file[-7:-4]+".csv"
         
-        print(morfi)
+        # print(morfi)
         try:
             real = pd.read_csv(os.path.join("data/raw/NIPS4B_BIRD_CHALLENGE_TRAIN_TEST_WAV/temporal_annotations_nips4b",morfi))
-            print(tabulate(real, headers='keys', tablefmt='psql'))
+            # print(tabulate(real, headers='keys', tablefmt='psql'))
             file_filt.to_csv(os.path.join("data/out/separate_evaluations","nips4b_birds_classificationfile"+curr_file[-7:-4]+".csv"))
             
             print('\n')
@@ -118,8 +118,8 @@ def file_score(num_files):
             print('---------------------------------------------------------------------')
             print('\n')
             # print(confusion_matrix(file_filt,'pred','label'))
-            rates = file_filt.groupby(['pred','label']).size().unstack(fill_value=0)
-            print(rates)
+            # rates = file_filt.groupby(['pred','label']).size().unstack(fill_value=0)
+            # print(rates)
             print('\n')
             print(file_filt['cfnmtx'].value_counts())
             print('\n')

@@ -9,9 +9,12 @@ def file_graph_temporal(num_graphs):
 
     filenames = os.listdir(os.path.join("data","out","separate_evaluations"))
     # print(filenames)
+    # print(len(filenames))
     # print(filenames[0][:-4])
+    # return
     os.makedirs(os.path.join("data","out","temporal_plots"))
-    for i in range(num_graphs):
+    for i in range(len(filenames)):
+
         evals = pd.read_csv(os.path.join("data/out/separate_evaluations",filenames[i])) 
 
         title = evals['file'].unique()[0]
@@ -57,6 +60,7 @@ def file_graph_temporal(num_graphs):
         # g.tick_params(bottom=False)
         # pl.show()
         g.savefig(os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot'))
+        plt.close('all')
 
 # file_graph_temporal(2)
 
@@ -67,7 +71,7 @@ def file_graph_temporal_rates(num_graphs):
     # print(filenames)
     # print(filenames[0][:-4])
     # os.makedirs(os.path.join("data","out","temporal_plots"))
-    for i in range(num_graphs):
+    for i in range(len(filenames)):
         evals = pd.read_csv(os.path.join("data/out/separate_evaluations",filenames[i])) 
 
         title = evals['file'].unique()[0]
@@ -115,3 +119,4 @@ def file_graph_temporal_rates(num_graphs):
         # g.tick_params(bottom=False)
         # pl.show()
         g.savefig(os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot_rate'))
+        plt.close('all')

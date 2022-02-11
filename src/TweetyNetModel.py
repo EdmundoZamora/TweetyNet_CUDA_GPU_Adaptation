@@ -194,7 +194,7 @@ class TweetyNetModel(nn.Module):
                 # print(f'post reshape{inputs.shape}') # tutor
                 #print(labels.dtype)
                 # labels = labels.float()
-                labels = labels.long() # comment
+                # labels = labels.long() # comment
                 # lab
                 #print(labels.dtype)
 
@@ -255,7 +255,7 @@ class TweetyNetModel(nn.Module):
 
                 #argmax or max??? arg returns the indices and max just the element
                 # output = torch.max(output, dim=1)[1]#.squeeze() #.cpu().detach().numpy() #returns max index #OG
-                output = torch.max(output, dim=1)[1].squeeze()
+                output = torch.max(output, dim=1)[1]#.squeeze()
                 # print(f"shape in train {output.shape}") # tutor
                 # return 
                 # print(f'argmax of output {output}')
@@ -302,8 +302,7 @@ class TweetyNetModel(nn.Module):
                 inputs = inputs.reshape(inputs.shape[0],1, inputs.shape[1], inputs.shape[2])
                 # print(labels.dtype)
                 #float instead of long
-                labels = labels.long() # parameter
-                # labels = labels.float() #tutor
+                # labels = labels.long() # parameter
                 # print(labels.dtype)
 
                 # inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -343,7 +342,7 @@ class TweetyNetModel(nn.Module):
                 #argmax or max??? arg returns the indices and max just the element
 
                 # output = torch.max(output, dim=1)[1]
-                output = torch.max(output, dim=1)[1].squeeze()
+                output = torch.max(output, dim=1)[1]#.squeeze()
                 # print(f'output shape in val {output}')
                 
                 #convert outputs to binary 0 less than .5
@@ -419,8 +418,8 @@ class TweetyNetModel(nn.Module):
                 one_pred = output[:, 1, :].cpu().detach().numpy()# curr
 
                 # Are we getting the correct prediction? in the sense that its the predictions calculated not something else?
-                pred = torch.max(output, dim=1)[1].squeeze().cpu().detach().numpy() # causing problems
-                # pred = torch.max(output, dim=1)[1].cpu().detach().numpy()
+                # pred = torch.max(output, dim=1)[1].squeeze().cpu().detach().numpy() # causing problems
+                pred = torch.max(output, dim=1)[1].cpu().detach().numpy()
                 # pred = output.cpu().detach().numpy() # tutor
                 # print(pred) # tutor
 

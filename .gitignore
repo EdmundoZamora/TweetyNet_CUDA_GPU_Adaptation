@@ -1,4 +1,9 @@
 data/raw/
+data/out/separate_evaluations
+data/out/temporal_plots
+data/out/
+GPU_WIP_GRAPHS/
+
 *pyc
 */__pycache__/*
 */.ipynb_checkpoints/*

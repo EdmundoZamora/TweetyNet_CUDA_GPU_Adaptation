@@ -149,9 +149,9 @@ def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_
             pickle.dump(dataset, f)
 
     inds = [i for i, x in enumerate(dataset["X"]) if x.shape[1] == 216]
-    X = np.array([dataset["X"][i].transpose() for i in inds]).astype(np.float32)/255 # tune
+    # X = np.array([dataset["X"][i].transpose() for i in inds]).astype(np.float32)/255 # tune
     # X = np.array([dataset["X"][i] for i in inds]).astype(np.float32)/255
-    # X = np.array([np.rot90(dataset["X"][i],3) for i in inds]).astype(np.float32)/255 # over training, with norm label, .005 lr, 5, bs, 500 E
+    X = np.array([np.rot90(dataset["X"][i],3) for i in inds]).astype(np.float32)/255 # over training, with norm label, .005 lr, 5, bs, 500 E
     Y = np.array([dataset["Y"][i] for i in inds])
     uids = np.array([dataset["uids"][i] for i in inds])
 
@@ -343,7 +343,8 @@ def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graph
     sys.stdout = open(os.path.join('data/out','file_score_rates.txt'), 'w')
     file_score(temporal_graphs)
     sys.stdout.close()
+    sys.stdout = orig_stdout
     file_graph_temporal(temporal_graphs) 
     file_graph_temporal_rates(temporal_graphs) 
-    sys.stdout = orig_stdout
+    
     return print("Finished Classifcation")
