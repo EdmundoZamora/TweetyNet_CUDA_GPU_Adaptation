@@ -11,7 +11,9 @@ from graphs import*
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
+from torchsummary import summary
 
+# region
 from torch import cuda
 import torch
 from torch import LongTensor
@@ -20,17 +22,18 @@ from torch.utils.data import DataLoader
 from network import TweetyNet
 import librosa
 from librosa import display
+import scipy.signal as scipy_signal
+from torch.utils.data import Dataset
+import matplotlib.pyplot as plt
+from glob import glob
+#endregion
+
 #from microfaune.audio import wav2spc, create_spec, load_wav
 from TweetyNetAudio import wav2spc, create_spec, load_wav
-from glob import glob
 import random
-import scipy.signal as scipy_signal
-
-from torch.utils.data import Dataset
 from CustomAudioDataset import CustomAudioDataset
 from TweetyNetModel import TweetyNetModel
 
-import matplotlib.pyplot as plt
 
 def get_frames(x, frame_size, hop_length):
     return ((x) / hop_length) + 1 #(x - frame_size)/hop_length + 1
@@ -169,7 +172,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     print("IGNORE MISSING WAV FILES - THEY DONT EXIST")
     # load_data_set returns variables which get fed into model builder 
     X, Y, uids = load_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, use_dump=True)
-    # print(f'X shape {X.shape}') #number of birds, rows of each data column of each data.
+    '''# print(f'X shape {X.shape}') #number of birds, rows of each data column of each data.
     # print(f'len of X {len(X)}')
     # bird1 = X[0] #data point, [0][0] feature value of dp, yes
     # print(bird1)
@@ -182,34 +185,37 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     # spec = librosa.display.specshow(bird1, hop_length = HOP_LENGTH,sr = SR, y_axis='mel', x_axis='time') # displays rotated
     # print(spec)
     # plt.show()
-    # return
+    # return'''
 
 
     print("\n")
     print("----------------------------------------------------------------------------------------------")
     test_dataset = CustomAudioDataset(X, Y, uids)
 
-    pos, total = 0,0
+    '''# pos, total = 0,0
     #remove green and red labels
     #for k in found:
-        #print(k, found[k])
+        #print(k, found[k])'''
     X, Y, uids =  random_split_to_fifty(X, Y, uids)
 
-    for y in Y:
-        pos += sum(y)
-        total += len(y)
+    '''# for y in Y:
+    #     pos += sum(y)
+    #     total += len(y)
     # print(pos, total, pos/total, len(Y))
 
     #features above feed into below
 
-    #all_tags = create_tags(datasets_dir, folder)
+    #all_tags = create_tags(datasets_dir, folder)'''
     all_tags = [0,1]
-    #print(len(Counter(all_tags)))
+    '''#print(len(Counter(all_tags)))
     #for c in range(10):
     #    print(Y[c])
-    #return
+    #return'''
     
     X_train, X_val, Y_train, Y_val, uids_train, uids_val = train_test_split(X, Y, uids, test_size=.2)
+
+    # X_val, X_test, Y_val, Y_test, uids_val, uids_test = train_test_split(X_test, Y_test, uids, test_size=.3)
+
     # print(X_train.shape, Y_train.shape, uids_train.shape)
     # print(X_val.shape, Y_val.shape, uids_val.shape)
     #create tensors
@@ -256,6 +262,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
     #test_dataset = CustomAudioDataset(X_test[:6], Y_test[:6], uids_test[:6])
     val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
+    # test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
     # train_dataset.to(device)
     # val_dataset.to(device)
 
@@ -276,7 +283,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     return all_tags, n_mels, train_dataset, val_dataset, test_dataset, HOP_LENGTH, SR
 
 
-def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_size, epochs, outdir):
+def model_build(all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_size, epochs, outdir):
     
     if Skip:
         for f in os.listdir(outdir):
@@ -303,6 +310,7 @@ def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_s
     # model.cuda()
     model.to(torch.cuda.current_device())#()
     model.train()
+    # summary(model.to(torch.cuda.current_device()),(1, n_mels, 216))
 
     # print(f'is model in GPU? {model.is_cuda}')
 
@@ -339,11 +347,14 @@ def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graph
     test_out, time_segs = tweetynet.test_load_step(test_dataset, hop_length, sr, model_weights=model_weights) 
     test_out.to_csv(os.path.join(outdir,"Evaluation_on_data.csv"))
     time_segs.to_csv(os.path.join(outdir,"Time_intervals.csv"))
-    orig_stdout = sys.stdout
-    sys.stdout = open(os.path.join('data/out','file_score_rates.txt'), 'w')
+    
+    # orig_stdout = sys.stdout
+
+    # sys.stdout = open(os.path.join('data/out','file_score_rates.txt'), 'w')
     file_score(temporal_graphs)
-    sys.stdout.close()
-    sys.stdout = orig_stdout
+    # sys.stdout.close()
+
+    # sys.stdout = orig_stdout
     file_graph_temporal(temporal_graphs) 
     file_graph_temporal_rates(temporal_graphs) 
     

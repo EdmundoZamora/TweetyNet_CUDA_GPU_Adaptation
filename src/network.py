@@ -117,6 +117,7 @@ bidirectional : bool
 """
 
 class TweetyNet(nn.Module):
+    
     def __init__(self,
                  num_classes,
                  input_shape=(1, 513, 88),
@@ -134,24 +135,31 @@ class TweetyNet(nn.Module):
                  num_layers=1,
                  bidirectional=True,
                  ):
+
         super().__init__()
         self.num_classes = num_classes
         self.input_shape = input_shape
         print(f'shape in network {self.input_shape}')
+
         self.cnn = nn.Sequential(
+
             Conv2dTF(in_channels= self.input_shape[0],#(self.input_shape[1], self.input_shape[2]), # this should be 216 by 72
                      out_channels=conv1_filters,
                      kernel_size=conv1_kernel_size,
                      padding=padding
                      ),
+
             nn.ReLU(inplace=True),
+
             nn.MaxPool2d(kernel_size=pool1_size,
                          stride=pool1_stride),
+
             Conv2dTF(in_channels=conv1_filters,
                      out_channels=conv2_filters,
                      kernel_size=conv2_kernel_size,
                      padding=padding,
                      ),
+
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=pool2_size,
                          stride=pool2_stride),
