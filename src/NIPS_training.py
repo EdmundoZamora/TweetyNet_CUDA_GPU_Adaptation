@@ -190,7 +190,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
 
     print("\n")
     print("----------------------------------------------------------------------------------------------")
-    test_dataset = CustomAudioDataset(X, Y, uids)
+    # test_dataset = CustomAudioDataset(X, Y, uids)
 
     '''# pos, total = 0,0
     #remove green and red labels
@@ -212,9 +212,9 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     #    print(Y[c])
     #return'''
     
-    X_train, X_val, Y_train, Y_val, uids_train, uids_val = train_test_split(X, Y, uids, test_size=.2)
+    X_train, X_val, Y_train, Y_val, uids_train, uids_val = train_test_split(X, Y, uids, test_size=.3)
 
-    # X_val, X_test, Y_val, Y_test, uids_val, uids_test = train_test_split(X_test, Y_test, uids, test_size=.3)
+    X_val, X_test, Y_val, Y_test, uids_val, uids_test = train_test_split(X_val, Y_val, uids_val, test_size=.33)
 
     # print(X_train.shape, Y_train.shape, uids_train.shape)
     # print(X_val.shape, Y_val.shape, uids_val.shape)
@@ -236,13 +236,22 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
 
     X_train = torch.FloatTensor(X_train).to(torch.cuda.current_device())#.cuda()
     X_val = torch.FloatTensor(X_val).to(torch.cuda.current_device())#.cuda()
+
     Y_train = torch.LongTensor(Y_train).to(torch.cuda.current_device())#.cuda()
     Y_val = torch.LongTensor(Y_val).to(torch.cuda.current_device())#.cuda()
 
+    X_test = torch.FloatTensor(X_test).to(torch.cuda.current_device())#.cuda()
+    Y_test = torch.LongTensor(Y_test).to(torch.cuda.current_device())#.cuda()
+
     print(f'is X_train on GPU? {X_train.is_cuda}')
     print(f'is X_val on GPU? {X_val.is_cuda}')
+
     print(f'is Y_train on GPU? {Y_train.is_cuda}')
     print(f'is Y_val on GPU? {Y_val.is_cuda}')
+
+    print(f'is X_test on GPU? {X_test.is_cuda}')
+    print(f'is Y_test on GPU? {Y_test.is_cuda}')
+
     print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
     # print('---------------------------------')
     # print('\n')
@@ -262,7 +271,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
     #test_dataset = CustomAudioDataset(X_test[:6], Y_test[:6], uids_test[:6])
     val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
-    # test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
+    test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
     # train_dataset.to(device)
     # val_dataset.to(device)
 

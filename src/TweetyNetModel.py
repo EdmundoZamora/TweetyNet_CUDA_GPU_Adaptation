@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import torch
-
+import librosa
 from torch import cuda
 
 #from network import TweetyNet
@@ -186,10 +186,19 @@ class TweetyNetModel(nn.Module):
             edit_distance = 0.0
             
             for i, data in enumerate(train_loader,0):
-                inputs, labels, _ = data
+                inputs, labels, uid = data
                 #print(type(input))
                 #print(type(labels))
                 # print(f'before reshape{inputs.shape}') #tutor
+                # print(inputs.shape)
+                # bird = inputs[0].detach().cpu().numpy()
+                # print(uid)
+                # print(labels)
+                # spec = librosa.display.specshow(bird,sr = 44100, hop_length = 1024, y_axis='time', x_axis='mel')
+                # plt.show()
+                # # print(bird)
+                # # print(inputs[0])
+                # return ...
                 inputs = inputs.reshape(inputs.shape[0],1, inputs.shape[1], inputs.shape[2])
                 '''# print(f'post reshape{inputs.shape}') # tutor
                 #print(labels.dtype)
@@ -200,7 +209,11 @@ class TweetyNetModel(nn.Module):
 
                 #inputs = torch.LongTensor(inputs).cuda()
                 #labels = torch.LongTensor(labels).cuda()'''
-
+                
+                # print(inputs.shape) # CUDA error: out of memory
+                
+                
+                # 
 
 
                 '''# print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
@@ -302,7 +315,7 @@ class TweetyNetModel(nn.Module):
                 inputs = inputs.reshape(inputs.shape[0],1, inputs.shape[1], inputs.shape[2])
                 # print(labels.dtype)
                 #float instead of long
-                labels = labels.long() # parameter
+                # labels = labels.long() # parameter
                 # print(labels.dtype)
 
                 '''# inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -385,7 +398,7 @@ class TweetyNetModel(nn.Module):
                 inputs = inputs.reshape(inputs.shape[0], 1, inputs.shape[1], inputs.shape[2])
                 #print(labels.dtype)
                 # labels = labels.float()
-                labels = labels.long() #questionable, not necessary?, same to squeeze.
+                # labels = labels.long() #questionable, not necessary?, same to squeeze.
                 #print(labels.dtype)
                 #print(labels)
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -399,6 +412,9 @@ class TweetyNetModel(nn.Module):
                 #print(type(labels))'''
                 temp_uids = []
                 files = []
+
+
+
                 if self.binary: # weakly labeled
                     print("binary")
                     labels = np.array([[x] * output.shape[-1] for x in labels]) #removed torch.from_numpy()
@@ -412,6 +428,9 @@ class TweetyNetModel(nn.Module):
                              temp_uids.append(str(j) + "_" + u)
                              files.append(u)
                     temp_uids = np.array(temp_uids)
+
+
+                    
                 #print(type(labels))
                 #print(labels)
                 labels = labels.cpu().detach().numpy()
