@@ -191,24 +191,18 @@ class TweetyNetModel(nn.Module):
                 #print(type(labels))
                 # print(f'before reshape{inputs.shape}') #tutor
                 # print(inputs.shape)
-                # bird = inputs[0].detach().cpu().numpy()
-                # print(uid)
-                # print(labels)
-                # spec = librosa.display.specshow(bird,sr = 44100, hop_length = 1024, y_axis='time', x_axis='mel')
-                # plt.show()
-                # # print(bird)
-                # # print(inputs[0])
+                if e == 0:
+                    bird = inputs[0].detach().cpu().numpy()
+                    bird = bird.reshape(inputs.shape[2], inputs.shape[3])
+                    print(uid[0])
+                    print(labels[0].detach().cpu().numpy())
+                    spec = librosa.display.specshow(bird,sr = 44100, hop_length = 1024, y_axis='time', x_axis='mel')
+                    plt.show()
+                else:
+                    pass                #return 
+                # print(bird)
+                # print(inputs[0])
                 # return ...
-                inputs = inputs.reshape(inputs.shape[0],1, inputs.shape[1], inputs.shape[2])
-                '''# print(f'post reshape{inputs.shape}') # tutor
-                #print(labels.dtype)
-                # labels = labels.float()'''
-                # labels = labels.long() # comment
-                '''# lab
-                #print(labels.dtype)
-
-                #inputs = torch.LongTensor(inputs).cuda()
-                #labels = torch.LongTensor(labels).cuda()'''
                 
                 # print(inputs.shape) # CUDA error: out of memory
                 
@@ -311,12 +305,18 @@ class TweetyNetModel(nn.Module):
             val_correct = 0.0
             val_edit_distance = 0.0
             for i, data in enumerate(val_loader):
-                inputs, labels, _ = data
-                inputs = inputs.reshape(inputs.shape[0],1, inputs.shape[1], inputs.shape[2])
-                # print(labels.dtype)
-                #float instead of long
-                # labels = labels.long() # parameter
-                # print(labels.dtype)
+                inputs, labels, uid = data
+                # if i == 0:
+                #     bird = inputs[0].detach().cpu().numpy()
+                #     bird = bird.reshape(inputs.shape[2], inputs.shape[3])
+                #     print(uid[0])
+                #     print(labels[0].detach().cpu().numpy())
+                #     spec = librosa.display.specshow(bird,sr = 44100, hop_length = 1024, y_axis='time', x_axis='mel')
+                #     plt.show()
+                # else:
+                #     pass
+
+                
 
                 '''# inputs, labels = inputs.to(self.device), labels.to(self.device)
 
@@ -395,12 +395,16 @@ class TweetyNetModel(nn.Module):
                 inputs, labels, uids = data
                 #print(type(labels))
                 # print(labels)
-                inputs = inputs.reshape(inputs.shape[0], 1, inputs.shape[1], inputs.shape[2])
-                #print(labels.dtype)
-                # labels = labels.float()
-                # labels = labels.long() #questionable, not necessary?, same to squeeze.
-                #print(labels.dtype)
-                #print(labels)
+                # if i == 0:
+                #     bird = inputs[0].detach().cpu().numpy()
+                #     bird = bird.reshape(inputs.shape[2], inputs.shape[3])
+                #     print(uids[0])
+                #     print(labels[0].detach().cpu().numpy())
+                #     spec = librosa.display.specshow(bird,sr = 44100, hop_length = 1024, y_axis='time', x_axis='mel')
+                #     plt.show()
+                # else:
+                #     pass
+
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 # print(f'labels shape {labels.shape}')
 

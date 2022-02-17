@@ -1,7 +1,7 @@
 data/raw/
 data/out/separate_evaluations
-data/out/temporal_plots
-data/out/
+# data/out/temporal_plots
+# data/out/
 GPU_WIP_GRAPHS/
 
 *pyc

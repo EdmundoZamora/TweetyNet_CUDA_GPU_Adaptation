@@ -11,7 +11,7 @@ from graphs import*
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
-from torchsummary import summary
+# from torchsummary import summary
 
 # region
 from torch import cuda
@@ -154,8 +154,9 @@ def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_
     inds = [i for i, x in enumerate(dataset["X"]) if x.shape[1] == 216]
     # X = np.array([dataset["X"][i].transpose() for i in inds]).astype(np.float32)/255 # tune
     # X = np.array([dataset["X"][i] for i in inds]).astype(np.float32)/255
-    X = np.array([np.rot90(dataset["X"][i],3) for i in inds]).astype(np.float32)/255 # over training, with norm label, .005 lr, 5, bs, 500 E
-    Y = np.array([dataset["Y"][i] for i in inds])
+    X = np.array([dataset["X"][i] for i in inds]).astype(np.float32)/255 # over training, with norm label, .005 lr, 5, bs, 500 E
+    X = X.reshape(X.shape[0], 1, X.shape[1], X.shape[2])
+    Y = np.array([dataset["Y"][i] for i in inds]).astype(np.longlong)
     uids = np.array([dataset["uids"][i] for i in inds])
 
     # to tensor
@@ -270,8 +271,55 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
 
     train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
     #test_dataset = CustomAudioDataset(X_test[:6], Y_test[:6], uids_test[:6])
+
+    X, Y, uid = train_dataset.__getitem__(0)
+    print(X.detach().cpu().numpy())
+    # return...
+    print('\n')
+    print(X[0].detach().cpu().numpy())
+    print('\n')
+    print(Y[0].detach().cpu().numpy())
+    print('\n')
+    print(uid)
+    print('\n')
+
+    bird1 = X[0].detach().cpu().numpy()
+    spec1 = librosa.display.specshow(bird1, hop_length = HOP_LENGTH,sr = SR, y_axis='time', x_axis='mel')
+    plt.show()
+    # return
+
     val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
+
+    X, Y, uid = val_dataset.__getitem__(0)
+    print('\n')
+    print(X[0].detach().cpu().numpy())
+    print('\n')
+    print(Y[0].detach().cpu().numpy())
+    print('\n')
+    print(uid)
+    print('\n')
+
+    bird2 = X[0].detach().cpu().numpy()
+    spec2 = librosa.display.specshow(bird2, hop_length = HOP_LENGTH,sr = SR, y_axis='time', x_axis='mel')
+    plt.show()
+    # return
+
     test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
+
+    X, Y, uid = test_dataset.__getitem__(0)
+    print('\n')
+    print(X[0].detach().cpu().numpy())
+    print('\n')
+    print(Y[0].detach().cpu().numpy())
+    print('\n')
+    print(uid)
+    print('\n')
+
+    bird3 = X[0].detach().cpu().numpy()
+    spec3 = librosa.display.specshow(bird3, hop_length = HOP_LENGTH,sr = SR, y_axis='time', x_axis='mel')
+    plt.show()
+    # return
+
     # train_dataset.to(device)
     # val_dataset.to(device)
 
