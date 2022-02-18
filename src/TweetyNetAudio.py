@@ -42,10 +42,19 @@ def load_wav(path, decimate=None):
     fs, data = wavfile.read(path)
 
     data = data.astype(np.float32)
+    # print(data.shape)
+    if len(data.shape) > 1: # stereo
+        # print(f'before mono {data.shape}')
+        data = np.mean(data,axis = 1)
+        # print(f'post mono {data.shape}')
 
     if decimate is not None:
-        data = signal.decimate(data, decimate)
+        # print('decimate is not None')
+        data = signal.decimate(data, decimate) # returns downsampled signal
         fs /= decimate
+    else:
+        # print('decimate is None')
+        pass
 
     return fs, data
 
@@ -186,7 +195,8 @@ def wav2spc(wav_file, fs=44100, n_mels=40, n_fft=2048, hop_len=1024, duration=No
         x = x[:int(fs * duration) + 1]
 
     spec = create_spec(x, fs, n_mels, n_fft, hop_len)
-    return spec
+    len_audio = len(x)/x_fs
+    return spec, len_audio
 
 
 def file2spec(path_file, scale_spec="linear", N_MELS=40, window_length=0.020, overlap=0.5, f_max=15000, duration=None):

@@ -1,7 +1,7 @@
 {
-    "folder" : "train",
+    "folder" : "Mixed_Bird-20220126T212121Z-003",
     "SR":44100,
-    "n_mels":72,
+    "n_mels":86,
     "FRAME_SIZE":2048,
     "HOP_LENGTH":1024,
     "nonBird_labels":["Plasab_song", "Unknown", "Tibtom_song", "Lyrple_song", "Plaaff_song", "Pelgra_call", "Cicatr_song", "Cicorn_song", "Tetpyg_song", "Ptehey_song"],
