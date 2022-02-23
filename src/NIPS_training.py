@@ -450,7 +450,9 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     print("IGNORE MISSING WAV FILES - THEY DONT EXIST")
     # load_data_set returns variables which get fed into model builder 
     # X, Y, uids = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, use_dump=True)
-    X, Y, uids = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, 2)
+    
+    folder = 'Train'
+    X, Y, uids = load_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, 2)
     '''# print(f'X shape {X.shape}') #number of birds, rows of each data column of each data.
     # print(f'len of X {len(X)}')
     # bird1 = X[0] #data point, [0][0] feature value of dp, yes
@@ -475,7 +477,9 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     #remove green and red labels
     #for k in found:
         #print(k, found[k])'''
-    X, Y, uids =  random_split_to_fifty(X, Y, uids)
+
+    # Prolonged time complexity
+    # X, Y, uids =  random_split_to_fifty(X, Y, uids)
 
     '''# for y in Y:
     #     pos += sum(y)

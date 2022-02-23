@@ -191,15 +191,15 @@ class TweetyNetModel(nn.Module):
                 #print(type(labels))
                 # print(f'before reshape{inputs.shape}') #tutor
                 # print(inputs.shape)
-                if e == 0:
-                    bird = inputs[0].detach().cpu().numpy()
-                    bird = bird.reshape(inputs.shape[2], inputs.shape[3])
-                    print(uid[0])
-                    print(labels[0].detach().cpu().numpy())
-                    spec = librosa.display.specshow(bird,sr = 44100, hop_length = 1024, y_axis='time', x_axis='mel')
-                    plt.show()
-                else:
-                    pass                #return 
+                # if e == 0:
+                #     bird = inputs[0].detach().cpu().numpy()
+                #     bird = bird.reshape(inputs.shape[2], inputs.shape[3])
+                #     print(uid[0])
+                #     print(labels[0].detach().cpu().numpy())
+                #     spec = librosa.display.specshow(bird,sr = 44100, hop_length = 1024, y_axis='time', x_axis='mel')
+                #     plt.show()
+                # else:
+                #     pass                #return 
                 # print(bird)
                 # print(inputs[0])
                 # return ...
@@ -213,7 +213,7 @@ class TweetyNetModel(nn.Module):
                 '''# print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
                 # print(f'device in training step {torch.cuda.get_device_name(self.device)}')'''
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
-                
+                print('Training Step')
                 '''# print(f'labels shape in train {labels.shape}')# tutor
 
                 # print(f'are inputs from training step in GPU? {inputs.is_cuda}')
@@ -327,6 +327,7 @@ class TweetyNetModel(nn.Module):
                 # print(f'are validation labels from training step in GPU? {labels.is_cuda}')
                 # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
                 # print(f'input shape in val {inputs.shape}') # tutor'''
+                print('Validation Step')
 
                 output = self.model(inputs)
                 '''# output = output.reshape(labels.shape[0], labels.shape[1]) #tutor
@@ -407,6 +408,7 @@ class TweetyNetModel(nn.Module):
 
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 # print(f'labels shape {labels.shape}')
+                print('Testing Step')
 
                 output = self.model(inputs) # what is this output look like?, specify batch size here?
                 '''# output = output.reshape(labels.shape[0], labels.shape[1]) # tutor
