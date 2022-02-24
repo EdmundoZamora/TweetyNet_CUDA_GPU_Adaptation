@@ -195,8 +195,12 @@ def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_leng
         #spc matrix and labels array window spcs to match up with the labels
         # return
         '''
+        # for i in range(freq_axis):
+        #     uid_num = str(i)
+        #     features["uids"].append(uid_num + f) # need 31 of f
+        
+        features["uids"].extend([f]*freq_axis)
 
-        features["uids"].extend([f]*freq_axis) # need 31 of f
         features["X"].extend(spc_split)#.append(spc)
         features["Y"].extend(Y_split)#.append(Y)
         '''

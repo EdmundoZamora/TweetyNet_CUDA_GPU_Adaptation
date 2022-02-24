@@ -388,7 +388,7 @@ class TweetyNetModel(nn.Module):
         self.model.eval()
 
         st_time = []
-        for i in range(216): # will change to be more general, does it only for one trainfile?
+        for i in range(86): # will change to be more general, does it only for one trainfile?
             st_time.append(get_time(i, hop_length, sr))
 
         with torch.no_grad():

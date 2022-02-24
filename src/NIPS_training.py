@@ -46,8 +46,12 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     # load_data_set returns variables which get fed into model builder 
     # X, Y, uids = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, use_dump=True)
     
-    folder = 'Train'
-    X, Y, uids = load_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, 2)
+    # folder = 'train'
+    # X, Y, uids = load_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH,nonBird_labels, found)
+
+    folder = 'Mixed_Bird-20220126T212121Z-003'
+    X, Y, uids = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH,2)
+
     '''# print(f'X shape {X.shape}') #number of birds, rows of each data column of each data.
     # print(f'len of X {len(X)}')
     # bird1 = X[0] #data point, [0][0] feature value of dp, yes
@@ -247,7 +251,7 @@ def model_build(all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_si
     # device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using {name} ")# torch.cuda.get_device_name(0)
     
-    model = TweetyNetModel(len(Counter(all_tags)), (1, n_mels, 216), device, batchsize = batch_size, binary=False)
+    model = TweetyNetModel(len(Counter(all_tags)), (1, n_mels, 86), device, batchsize = batch_size, binary=False)
     # model = 
     # model.cuda()
     model.to(torch.cuda.current_device())#()
@@ -297,7 +301,7 @@ def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graph
     # sys.stdout.close()
 
     # sys.stdout = orig_stdout
-    file_graph_temporal(temporal_graphs) 
-    file_graph_temporal_rates(temporal_graphs) 
+    # file_graph_temporal(temporal_graphs) 
+    # file_graph_temporal_rates(temporal_graphs) 
     
     return print("Finished Classifcation")
