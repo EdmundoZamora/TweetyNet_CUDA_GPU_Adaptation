@@ -195,6 +195,7 @@ def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_leng
         #spc matrix and labels array window spcs to match up with the labels
         # return
         '''
+        
         # for i in range(freq_axis):
         #     uid_num = str(i)
         #     features["uids"].append(uid_num + f) # need 31 of f
@@ -211,7 +212,7 @@ def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_leng
     '''
     return features
 
-#testing
+# works
 def compute_pyrenote_Y(wav, f, spc, tags, data_path, folder, SR, frame_size, hop_length):
     # file_num = f.split("file")[-1][:3]
     # print(wav)
@@ -246,7 +247,7 @@ def compute_pyrenote_Y(wav, f, spc, tags, data_path, folder, SR, frame_size, hop
     else:
         print("file does not exist: ", f)
     return [0] * spc.shape[1]
-# wip
+# works
 def calc_pyrenote_Y(x, sr, spc, annotation, tags, frame_size, hop_length):
     y = [0] * spc.shape[1] # array of zeros
     # print(y)
@@ -280,7 +281,7 @@ def calc_pyrenote_Y(x, sr, spc, annotation, tags, frame_size, hop_length):
         # print(y) #COMPARE TO SPECTROGRAM Accipiter-superciliosus-329800.wav
         # return
     return y
-#WIP
+# works
 def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, windowsize, use_dump=True):
     mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_dataset.pkl".format(folder))
     if os.path.exists(mel_dump_file) and use_dump:

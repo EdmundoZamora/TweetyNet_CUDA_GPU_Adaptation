@@ -291,13 +291,17 @@ def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graph
     model_weights = os.path.join(outdir,f"model_weights-{date_str}.h5") # time sensitive file title
     tweetynet = model
     test_out, time_segs = tweetynet.test_load_step(test_dataset, hop_length, sr, model_weights=model_weights) 
+
+    #process the predictions here?
     test_out.to_csv(os.path.join(outdir,"Evaluation_on_data.csv"))
+
     time_segs.to_csv(os.path.join(outdir,"Time_intervals.csv"))
     
     # orig_stdout = sys.stdout
 
     # sys.stdout = open(os.path.join('data/out','file_score_rates.txt'), 'w')
     file_score(temporal_graphs)
+    #process the predictions here?
     # sys.stdout.close()
 
     # sys.stdout = orig_stdout

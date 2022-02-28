@@ -447,6 +447,10 @@ class TweetyNetModel(nn.Module):
                 # Are we getting the correct prediction? in the sense that its the predictions calculated not something else?
                 # pred = torch.max(output, dim=1)[1].squeeze().cpu().detach().numpy() # causing problems
                 pred = torch.max(output, dim=1)[1].cpu().detach().numpy()
+
+                #process the predictions here?
+
+
                 '''# pred = output.cpu().detach().numpy() # tutor
                 # print(pred) # tutor
 
@@ -486,6 +490,8 @@ class TweetyNetModel(nn.Module):
                 extracted_col = nu_time["temporal_frame_start_times"]
                 
                 predictions_timed = predictions.join(extracted_col)
+
+                #process the predictions here?
 
         print('Finished Testing')
         return predictions_timed, time_secs
