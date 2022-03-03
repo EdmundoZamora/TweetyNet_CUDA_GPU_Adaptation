@@ -219,7 +219,7 @@ def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length,
     uids = dataset['uids']
     time_bins = dataset['time_bins']
 
-    return X, Y, uids
+    return X, Y, uids, time_bins
 
 def load_pyrenote_splits(spcs, ys, uids, time_bins, windowsize, data_path, folder, set_type, use_dump=True):
     mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_{}.pkl".format(folder, set_type))
