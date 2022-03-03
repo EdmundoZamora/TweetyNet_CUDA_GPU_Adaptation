@@ -280,13 +280,13 @@ def calc_pyrenote_Y(x, sr, spc, annotation, tags, frame_size, hop_length):
         # return
     return y
 # works
-def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, windowsize, use_dump=True):
+def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, use_dump=True):
     mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_dataset.pkl".format(folder))
     if os.path.exists(mel_dump_file) and use_dump:
         with open(mel_dump_file, "rb") as f:
             dataset = pickle.load(f)
     else:
-        dataset = compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length, windowsize)
+        dataset = compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length)
         with open(mel_dump_file, "wb") as f:
             pickle.dump(dataset, f)
     # print(f'dataset is {dataset}')
