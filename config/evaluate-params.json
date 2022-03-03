@@ -1,4 +1,5 @@
 {
     "outdir":"data/out",
-    "temporal_graphs":10
+    "temporal_graphs":10,
+    "window_size":5
 }

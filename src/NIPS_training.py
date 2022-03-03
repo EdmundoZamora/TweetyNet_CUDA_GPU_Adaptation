@@ -35,81 +35,61 @@ import random
 from CustomAudioDataset import CustomAudioDataset
 from TweetyNetModel import TweetyNetModel
 
-from Load_data_functions import load_dataset, load_pyrenote_dataset
+from Load_data_functions import load_dataset, load_pyrenote_dataset, load_pyrenote_splits
 
 
-def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found):
-    
+def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, window_size, dataset):
+    train = True
+    fineTuning = False
     print("----------------------------------------------------------------------------------------------")
     print("\n")
     print("IGNORE MISSING WAV FILES - THEY DONT EXIST")
     # load_data_set returns variables which get fed into model builder 
-    # X, Y, uids = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, use_dump=True)
-    
-    # folder = 'train'
-    # X, Y, uids = load_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH,nonBird_labels, found)
+    if dataset == "NIPS":
+        folder = 'train'
+        X, Y, uids = load_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, use_dump=True)
+        #print(f'X shape {X.shape}') #number of birds, rows of each data column of each data.
+        #print(f'len of X {len(X)}')
+        #bird1 = X[0] #data point, [0][0] feature value of dp, yes
+        #bird1 = bird1.reshape(bird1.shape[1], bird1.shape[2])
+        #print(bird1)
+        #print(f'len of bird1 {len(bird1)}') # 216
+        #print(f'shape of bird1 {bird1.shape}') # 216,72, r,c frequency bins, time bins
+        #print(f'arrays inside bird1 {len(X[0][0])}') # 72
+        #print(f'shape of bird1 first array {X[0][0].shape}')
+        #print(f'bird1 uid {uids[0]}')
+        #print(f'number of different birds {len(uids)}')
+        #spec = librosa.display.specshow(bird1, hop_length = HOP_LENGTH,sr = SR, y_axis='mel', x_axis='time') # displays rotated
+        #print(spec)
+        #plt.show()
+        X_train, X_val, Y_train, Y_val, uids_train, uids_val = train_test_split(X, Y, uids, test_size=.3)
+        X_val, X_test, Y_val, Y_test, uids_val, uids_test = train_test_split(X_val, Y_val, uids_val, test_size=.66)
+        all_tags = [0,1]
+    elif dataset == "PYRE":
+        X, Y, uids, time_bins = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH)
+        all_tags = [0,1]
+        # need
+        #Split by file
+        pre_X_train, pre_X_val, pre_Y_train, pre_Y_val, pre_uids_train, pre_uids_val, pre_time_bins_train, pre_time_bins_val = train_test_split(X, Y, uids, time_bins, test_size=.3) # Train 70% Val 30%
 
-    folder = 'Mixed_Bird-20220126T212121Z-003'
-    X, Y, uids = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH,2)
+        pre_X_val, pre_X_test, pre_Y_val, pre_Y_test, pre_uids_val, pre_uids_test, pre_time_bins_val, pre_time_bins_test= train_test_split(pre_X_val, pre_Y_val, pre_uids_val, pre_time_bins_val, test_size=.66)# val 10%, test 20%
 
-    '''# print(f'X shape {X.shape}') #number of birds, rows of each data column of each data.
-    # print(f'len of X {len(X)}')
-    # bird1 = X[0] #data point, [0][0] feature value of dp, yes
-    # print(bird1)
-    # print(f'len of bird1 {len(bird1)}') # 216
-    # print(f'shape of bird1 {bird1.shape}') # 216,72, r,c frequency bins, time bins
-    # print(f'arrays inside bird1 {len(X[0][0])}') # 72
-    # print(f'shape of bird1 first array {X[0][0].shape}')
-    # print(f'bird1 uid {uids[0]}')
-    # print(f'number of different birds {len(uids)}')
-    # spec = librosa.display.specshow(bird1, hop_length = HOP_LENGTH,sr = SR, y_axis='mel', x_axis='time') # displays rotated
-    # print(spec)
-    # plt.show()
-    # return'''
+        #window spectrograms
+        X_train, Y_train, uids_train, = load_pyrenote_splits(pre_X_train, pre_Y_train, pre_uids_train, pre_time_bins_train, window_size, datasets_dir, folder, "train")
+        X_val, Y_val, uids_val, = load_pyrenote_splits(pre_X_val, pre_Y_val, pre_uids_val, pre_time_bins_val, window_size, datasets_dir, folder, "val")
+        X_test, Y_test, uids_test, = load_pyrenote_splits(pre_X_test, pre_Y_test, pre_uids_test, pre_time_bins_test, window_size, datasets_dir, folder, "test")
+        
+        train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
+        val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
+        test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
+    else:
+        print(f"dataset:{dataset} does not exist")
+        return None
 
-
-    print("\n")
-    print("----------------------------------------------------------------------------------------------")
-    # test_dataset = CustomAudioDataset(X, Y, uids)
-
-    '''# pos, total = 0,0
-    #remove green and red labels
-    #for k in found:
-        #print(k, found[k])'''
-
-    # Prolonged time complexity
-    # X, Y, uids =  random_split_to_fifty(X, Y, uids)
-
-    '''# for y in Y:
-    #     pos += sum(y)
-    #     total += len(y)
-    # print(pos, total, pos/total, len(Y))
-
-    #features above feed into below
-
-    #all_tags = create_tags(datasets_dir, folder)'''
-    all_tags = [0,1]
-    '''#print(len(Counter(all_tags)))
-    #for c in range(10):
-    #    print(Y[c])
-    #return'''
-    
-    X_train, X_val, Y_train, Y_val, uids_train, uids_val = train_test_split(X, Y, uids, test_size=.3)
-
-    X_val, X_test, Y_val, Y_test, uids_val, uids_test = train_test_split(X_val, Y_val, uids_val, test_size=.33)
-
-    # print(X_train.shape, Y_train.shape, uids_train.shape)
-    # print(X_val.shape, Y_val.shape, uids_val.shape)
-    #create tensors
-    # print(X_train.shape) #100, 216, 72
-    # return 
-
-    #if torch.cuda.is_available(): #get this to work, does not detect gpu. works on tweety env(slow)
     device = torch.cuda.device('cuda:0')
     # print(f'device {device.get_device_name()}')
     print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
     name = torch.cuda.get_device_name(device)
-    # device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using {name} ")# torch.cuda.get_device_name(0)
     
     #1) batch the X_train
@@ -135,26 +115,10 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     print(f'is Y_test on GPU? {Y_test.is_cuda}')
 
     print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-
-    #region
-    # print('---------------------------------')
-    # print('\n')
-    # print(X_train)
-    # print('\n')
-    # print(X_val)
-    # print('\n')
-    # print(Y_train)
-    # print('\n')
-    # print(Y_val)
-    # print('\n')
-    # print('---------------------------------')
-
-    #uids_train = torch.LongTensor(uids_train).cuda()
-    #uids_val = torch.LongTensor(uids_val).cuda()
-    #endregion
     
     train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
-    #test_dataset = CustomAudioDataset(X_test[:6], Y_test[:6], uids_test[:6])
+    val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
+    test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
 
     X, Y, uid = train_dataset.__getitem__(0)
 
@@ -175,8 +139,6 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     # return
     #endregion
 
-    val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
-
     #region
     # X, Y, uid = val_dataset.__getitem__(0)
     # print('\n')
@@ -192,8 +154,6 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     # plt.show()
     # return
     #endregion
-
-    test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
 
     #region
     # X, Y, uid = test_dataset.__getitem__(0)
@@ -227,10 +187,9 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     # train_dataset = (train_dataset)
     # val_dataset = (val_dataset)
     #endregion
-
     return all_tags, n_mels, train_dataset, val_dataset, test_dataset, HOP_LENGTH, SR
 
-def model_build(all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_size, epochs, outdir):
+def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, time_bins, lr, batch_size, epochs, outdir, ):
     
     if Skip:
         for f in os.listdir(outdir):
@@ -251,7 +210,7 @@ def model_build(all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_si
     # device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using {name} ")# torch.cuda.get_device_name(0)
     
-    model = TweetyNetModel(len(Counter(all_tags)), (1, n_mels, 86), device, batchsize = batch_size, binary=False)
+    model = TweetyNetModel(len(Counter(all_tags)), (1, n_mels, time_bins), time_bins, device, binary = False)
     # model = 
     # model.cuda()
     model.to(torch.cuda.current_device())#()
@@ -274,7 +233,7 @@ def model_build(all_tags, n_mels, train_dataset, val_dataset, Skip, lr, batch_si
     train_dataset = train_dataset #(train_dataset).cuda()
     val_dataset = val_dataset#(val_dataset).cuda()
 
-    history, test_out, start_time, end_time, date_str = model.train_pipeline(train_dataset,val_dataset, None,
+    history, start_time, end_time, date_str = model.train_pipeline(train_dataset,val_dataset, 
                                                                        lr=lr, batch_size=batch_size,epochs=epochs, save_me=True,
                                                                        fine_tuning=False, finetune_path=None, outdir=outdir)#.cuda()
     print("Training time:", end_time-start_time)

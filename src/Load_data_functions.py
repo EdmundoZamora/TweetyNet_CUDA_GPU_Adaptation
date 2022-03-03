@@ -4,8 +4,6 @@ import csv
 import math
 import pickle
 
-from scoring_wip import*
-from graphs import*
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
@@ -301,17 +299,52 @@ def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length,
 
     # X = np.array([np.rot90(dataset["X"][i].astype(np.float32)/255,3) for i in inds], dtype=object)#.astype(np.float32)/255
     # X = np.array([np.rot90(dataset["X"][i],3) for i in inds]).astype(np.float32)/255 rotation causes frequency prediction outputs instead of timebins
-    X = np.array([dataset["X"][i] for i in inds]).astype(np.float32)/255
-    X = X.reshape(X.shape[0], 1, X.shape[1], X.shape[2])
-    Y = np.array([dataset["Y"][i] for i in inds]).astype(np.longlong)
-    uids = np.array([dataset["uids"][i] for i in inds])
-    # X = dataset['X']
-    # Y = dataset['Y']
-    # uids = dataset['uids']
+    # X = np.array([dataset["X"][i] for i in inds]).astype(np.float32)/255
+    # X = X.reshape(X.shape[0], 1, X.shape[1], X.shape[2])
+    # Y = np.array([dataset["Y"][i] for i in inds]).astype(np.longlong)
+    # uids = np.array([dataset["uids"][i] for i in inds])
+    X = dataset['X']
+    Y = dataset['Y']
+    uids = dataset['uids']
     return X, Y, uids
 
+def load_pyrenote_splits(spcs, ys, uids, time_bins, windowsize, data_path, folder, set_type, use_dump=True):
+    mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_{}.pkl".format(folder, set_type))
+    print(f"loading dataset for {set_type}")
+    if os.path.exists(mel_dump_file) and use_dump:
+        with open(mel_dump_file, "rb") as f:
+            dataset = pickle.load(f)
+    else: # need to go through each element
+        dataset = window_data(spcs, ys, uids, time_bins, windowsize)
+        with open(mel_dump_file, "wb") as f:
+            pickle.dump(dataset, f)
+    X = np.array([dataset["X"]]).astype(np.float32)/255
+    X = X.reshape(X.shape[1], 1, X.shape[2], X.shape[3])
+    Y = np.array([dataset["Y"]]).astype(np.longlong)
+    Y = Y.reshape(Y.shape[1], Y.shape[2])
+    uid = np.array([dataset["uids"]])
+    uid = uid.reshape(uid.shape[1])
+    return X, Y, uid
 
+def window_data(spcs, ys, uids, time_bins, windowsize):
+    windowed_dataset = {"uids": [], "X": [], "Y": []}
+    print("Windowing Spectrogram")
+    for i in range(len(uids)):
+        spc_split, Y_split, uid_split = window_spectrograms(spcs[i],ys[i], uids[i], time_bins[i], windowsize)
+        windowed_dataset["X"].extend(spc_split)
+        windowed_dataset["Y"].extend(Y_split)
+        windowed_dataset["uids"].extend(uid_split)
+    return windowed_dataset
 
+def window_spectrograms(spc, Y, uid, time_bin, windowsize):
+    computed = windowsize//time_bin #verify, big assumption. are time bins consistant?
+    # print(computed*(Y.shape[0]//computed))
+    time_axis = int(computed*(Y.shape[0]//computed))
+    freq_axis = int(Y.shape[0]//computed) # 31, 2, 19
+    spc_split = np.split(spc[:,:time_axis],freq_axis,axis = 1)
+    Y_split = np.split(Y[:time_axis],freq_axis)
+    uid_split = [str(i) + "_" + uid for i in range(freq_axis)]
+    return spc_split, Y_split, uid_split
 
 def create_tags(data_path, folder):
     csvs = find_tags(data_path, folder)
