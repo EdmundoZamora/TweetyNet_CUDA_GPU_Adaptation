@@ -65,7 +65,7 @@ def create_pyrenote_tags(data_path, folder):
 def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length, windowsize):
     print(f"Compute features for dataset {os.path.basename(data_path)}")
     
-    features = {"uids": [], "X": [], "Y": []}
+    features = {"uids": [], "X": [], "Y": [], "time_bins": []}
     '''
     # print(data_path)
     # folder = 
@@ -109,107 +109,18 @@ def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_leng
     ''' 
     
     for f in true_wavs:
-        '''
-        #signal, SR = downsampled_mono_audio(signal, sample_rate, SR)
-        # print(f)
-        '''
+        Y = compute_pyrenote_Y(wav,f, spc, tags, data_path, folder, SR, frame_size, hop_length) # fix this
+        # print(computed*(Y.shape[0]//computed))
         wav = os.path.join(file_path, f)
         spc,len_audio = wav2spc(wav, fs=SR, n_mels=n_mels) # returns array for display melspec (216,72)
-       
-        '''
-        # spec_1 = librosa.display.specshow(spc, hop_length = hop_length, sr = SR, y_axis = 'mel', x_axis='time')
-        # print(spc)
-        # print(spec_1)
-        # plt.show()
-        # print(f'spec shape {spc.shape}')
-        # window = frames2seconds(spc.shape[1],SR) # seconds also, model has
-        # print(f'window size {window}')
-        # print(f'length of audio {len_audio}')
-        # print(f'time bins in seconds {len_audio/spc.shape[1]}')
-        '''
-
-        time_bins = len_audio/spc.shape[1] # in seconds
-
-        '''
-        # curr have seconds we want for winds
-        # now we need to calc how many time bins we need to meet the number of seconds.
-        # able to slice the matrix, to balance the windows.
-        # return 
-        # print(wav)
-        # spec = librosa.display.specshow(spc,sr = SR, hop_length = hop_length, y_axis='mel', x_axis='time') # 72 is freq bin, second is time bins
-        # print(spec)
-        # plt.show()
-        # return
-        # return
-        # print(type(spc))
-        '''
-
+        time_bins = len_audio/spc.shape[1] # number of seconds in 1 time_bin
         Y = compute_pyrenote_Y(wav,f, spc, tags, data_path, folder, SR, frame_size, hop_length) # fix this
-        computed = windowsize//time_bins #verify, big assumption. are time bins consistant?
-        # print(computed*(Y.shape[0]//computed))
-        time_axis = int(computed*(Y.shape[0]//computed))
-        '''
-        # print(time_axis)
-        # print(type(time_axis))
-        # print(Y.shape[0]//computed)
-        '''
-        freq_axis = int(Y.shape[0]//computed) # 31, 2, 19
-        '''
-        # print(f'freq_axis {freq_axis}')
-        # print(f'freq_axis type {type(freq_axis)}')
-        # # return 
-        # print(f'spc split spc[:time_axis,:] shape {spc[:,:time_axis].shape}')
-        # print(f'Y split Y[:time_axis] shape {Y[:time_axis].shape}')
-        '''
 
-        spc_split = np.split(spc[:,:time_axis],freq_axis,axis = 1)
-        Y_split = np.split(Y[:time_axis],freq_axis)
-
-        spc_split_zero = spc_split[0]
-        print(f)
-        print(spc_split_zero.shape)
-
-        '''
-        # print(type(spc_split_zero))
-        # print(spc_split_zero)
-        # spec_2 = librosa.display.specshow(spc_split_zero, hop_length = hop_length, sr = SR, y_axis = 'mel', x_axis='time')
-        # print(spec_2)
-        # plt.show()
-        # return 
-
-        # spc.shape[0]
-        # print(len(spc_split))
-        # print(len(Y_split))
-        # print(spc_split[0].shape)
-        # print(Y_split[0].shape)
-        # return 
-
-        # for i in spc:
-        '''
-
-        '''
-        # compute_windows(spc,Y)--> array of spc's and their corresponding windows.
-        #compute the seconds, for window length
-        #spc matrix and labels array window spcs to match up with the labels
-        # return
-        '''
-        
-        # for i in range(freq_axis):
-        #     uid_num = str(i)
-        #     features["uids"].append(uid_num + f) # need 31 of f
-        
-        features["uids"].extend([f]*freq_axis)
-
-        features["X"].extend(spc_split)#.append(spc)
-        features["Y"].extend(Y_split)#.append(Y)
-        '''
-        # features["time_bins"].append(time_bins)
-
-    # print(filenames)
-    # return
-    '''
+        features["uids"].append(f)#.extend([f]*freq_axis) # need 31 of f
+        features["X"].append(spc)#.extend(spc_split)#.append(spc)
+        features["Y"].append(Y)#.extend(Y_split)#.append(Y)
+        features["time_bins"].append(time_bins)
     return features
-
 # works
 def compute_pyrenote_Y(wav, f, spc, tags, data_path, folder, SR, frame_size, hop_length):
     # file_num = f.split("file")[-1][:3]
@@ -280,13 +191,13 @@ def calc_pyrenote_Y(x, sr, spc, annotation, tags, frame_size, hop_length):
         # return
     return y
 # works
-def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, windowsize, use_dump=True):
+def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, use_dump=True):
     mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_dataset.pkl".format(folder))
     if os.path.exists(mel_dump_file) and use_dump:
         with open(mel_dump_file, "rb") as f:
             dataset = pickle.load(f)
     else:
-        dataset = compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length, windowsize)
+        dataset = compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length)
         with open(mel_dump_file, "wb") as f:
             pickle.dump(dataset, f)
     # print(f'dataset is {dataset}')
@@ -306,6 +217,8 @@ def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length,
     X = dataset['X']
     Y = dataset['Y']
     uids = dataset['uids']
+    time_bins = dataset['time_bins']
+
     return X, Y, uids
 
 def load_pyrenote_splits(spcs, ys, uids, time_bins, windowsize, data_path, folder, set_type, use_dump=True):
