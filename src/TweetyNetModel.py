@@ -384,7 +384,7 @@ class TweetyNetModel(nn.Module):
         st_time = []
         dataiter = iter(test_loader)
         label, _, _ = dataiter.next()
-        labels = labels.cpu().detach().numpy()
+        label = label.cpu().detach().numpy()
 
         #print(label.shape)
         for i in range(label.shape[-1]): # will change to be more general, does it only for one trainfile?
