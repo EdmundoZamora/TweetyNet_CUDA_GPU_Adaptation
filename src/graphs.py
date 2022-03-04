@@ -139,7 +139,7 @@ def file_graph_temporal_rates(num_graphs):
         fig.update_layout(title_text = title, title_x=0.5,legend_title_text='Annotation',yaxis_title=None)
         # fig.update_yaxes(visible=False, showticklabels=True)
         # fig.show()
-        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot.png'), format='png')
-        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot.html'))
+        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot_rates.png'), format='png')
+        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot_rates.html'))
 
 # file_graph_temporal(11)

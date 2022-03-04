@@ -42,7 +42,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     fineTuning = False
     print("----------------------------------------------------------------------------------------------")
     print("\n")
-    print("IGNORE MISSING WAV FILES - THEY DONT EXIST")
+    print("WAV FILES - THEY EXIST")
     # load_data_set returns variables which get fed into model builder 
     if dataset == "NIPS":
         folder = 'train'
@@ -263,6 +263,6 @@ def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graph
 
     # sys.stdout = orig_stdout
     file_graph_temporal(temporal_graphs) 
-    # file_graph_temporal_rates(temporal_graphs) 
+    file_graph_temporal_rates(temporal_graphs) 
     
     return print("Finished Classifcation")
