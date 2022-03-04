@@ -110,7 +110,7 @@ def file_score(num_files):
         # print(tabulate(file_filt, headers='keys', tablefmt='psql'))
         # break
 
-        morfi = "Predictions"+curr_file#"annotation_train"+curr_file[-7:-4]+".csv"
+        morfi = "Predictions_"+curr_file#"annotation_train"+curr_file[-7:-4]+".csv"
         
         # print(acc_score)
         
@@ -162,9 +162,9 @@ def file_score(num_files):
     frame['ACCURACY'] = frame.apply (lambda row: accuracy(row), axis=1)
     frame['PRECISION'] = frame.apply (lambda row: precision(row), axis=1)
     frame['RECALL'] = frame.apply (lambda row: sensitivity(row), axis=1)
-    # frame['TRUE_NEGATIVE_RATE'] = frame.apply (lambda row: specificity(row), axis=1)
-    # frame['FALSE_POSITIVE_RATE'] = frame.apply (lambda row: false_pos_rate(row), axis=1)
-    # frame['F1_SCORE'] = frame.apply (lambda row: false_pos_rate(row), axis=1)
+    frame['TRUE_NEGATIVE_RATE'] = frame.apply (lambda row: specificity(row), axis=1)
+    frame['FALSE_POSITIVE_RATE'] = frame.apply (lambda row: false_pos_rate(row), axis=1)
+    frame['F1_SCORE'] = frame.apply (lambda row: false_pos_rate(row), axis=1)
     
     frame.to_csv(os.path.join("data/out","Concluding_model_metrics.csv"))
 #region
