@@ -7,7 +7,7 @@ import shutil
 from collections import Counter
 from datetime import datetime
 
-from scoring_wip import*
+from scoring import*
 from graphs import*
 import pandas as pd
 import numpy as np
@@ -245,11 +245,11 @@ def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, time_bins, 
 
     return model, date_str
 
-def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graphs): # How can we evaluauate on a specific wav file though?? and show time in the csv? and time on a spectrorgam? ¯\_(ツ)_/¯
+def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graphs,window_size): # How can we evaluauate on a specific wav file though?? and show time in the csv? and time on a spectrorgam? ¯\_(ツ)_/¯
     
     model_weights = os.path.join(outdir,f"model_weights-{date_str}.h5") # time sensitive file title
     tweetynet = model
-    test_out, time_segs = tweetynet.test_load_step(test_dataset, hop_length, sr, model_weights=model_weights) 
+    test_out, time_segs = tweetynet.test_load_step(test_dataset, hop_length, sr, model_weights=model_weights,window_size = window_size) 
 
     #process the predictions here?
     test_out.to_csv(os.path.join(outdir,"Evaluation_on_data.csv"))
@@ -264,7 +264,7 @@ def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graph
     # sys.stdout.close()
 
     # sys.stdout = orig_stdout
-    # file_graph_temporal(temporal_graphs) 
+    file_graph_temporal(temporal_graphs) 
     # file_graph_temporal_rates(temporal_graphs) 
     
     return print("Finished Classifcation")

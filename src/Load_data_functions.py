@@ -62,7 +62,7 @@ def create_pyrenote_tags(data_path, folder):
     # print(tags)
     return tags # returns a dictionary of species and their counts
 # works
-def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length, windowsize):
+def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length):
     print(f"Compute features for dataset {os.path.basename(data_path)}")
     
     features = {"uids": [], "X": [], "Y": [], "time_bins": []}
@@ -109,8 +109,9 @@ def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_leng
     ''' 
     
     for f in true_wavs:
-        Y = compute_pyrenote_Y(wav,f, spc, tags, data_path, folder, SR, frame_size, hop_length) # fix this
+        # Y = compute_pyrenote_Y(wav,f, spc, tags, data_path, folder, SR, frame_size, hop_length) # fix this
         # print(computed*(Y.shape[0]//computed))
+        print(f)
         wav = os.path.join(file_path, f)
         spc,len_audio = wav2spc(wav, fs=SR, n_mels=n_mels) # returns array for display melspec (216,72)
         time_bins = len_audio/spc.shape[1] # number of seconds in 1 time_bin
@@ -219,7 +220,7 @@ def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length,
     uids = dataset['uids']
     time_bins = dataset['time_bins']
 
-    return X, Y, uids
+    return X, Y, uids, time_bins
 
 def load_pyrenote_splits(spcs, ys, uids, time_bins, windowsize, data_path, folder, set_type, use_dump=True):
     mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_{}.pkl".format(folder, set_type))
