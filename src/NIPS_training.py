@@ -35,8 +35,7 @@ import random
 from CustomAudioDataset import CustomAudioDataset
 from TweetyNetModel import TweetyNetModel
 
-from Load_data_functions import load_dataset, load_pyrenote_dataset, load_pyrenote_splits
-
+from Load_data_functions import load_dataset, load_pyrenote_dataset, load_pyrenote_splits, load_splits
 
 def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, window_size, dataset):
     train = True
@@ -64,6 +63,9 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
         #plt.show()
         X_train, X_val, Y_train, Y_val, uids_train, uids_val = train_test_split(X, Y, uids, test_size=.3)
         X_val, X_test, Y_val, Y_test, uids_val, uids_test = train_test_split(X_val, Y_val, uids_val, test_size=.66)
+        X_train, Y_train, uids_train = load_splits(X_train, Y_train, uids_train, datasets_dir, folder, "train")
+        X_val, Y_val, uids_val = load_splits(X_val, Y_val, uids_val, datasets_dir, folder, "val")
+        X_test, Y_test, uids_test = load_splits(X_test, Y_test, uids_test, datasets_dir, folder, "test")
         all_tags = [0,1]
     elif dataset == "PYRE":
         X, Y, uids, time_bins = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH)
@@ -78,10 +80,6 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
         X_train, Y_train, uids_train, = load_pyrenote_splits(pre_X_train, pre_Y_train, pre_uids_train, pre_time_bins_train, window_size, datasets_dir, folder, "train")
         X_val, Y_val, uids_val, = load_pyrenote_splits(pre_X_val, pre_Y_val, pre_uids_val, pre_time_bins_val, window_size, datasets_dir, folder, "val")
         X_test, Y_test, uids_test, = load_pyrenote_splits(pre_X_test, pre_Y_test, pre_uids_test, pre_time_bins_test, window_size, datasets_dir, folder, "test")
-        
-        train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
-        val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
-        test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
     else:
         print(f"dataset:{dataset} does not exist")
         return None

@@ -43,8 +43,10 @@ def main(targets):
 
     if 'features' in targets: # ad to q1-code
         if 'skip' in targets:
-            # data = os.path.join('data/raw',"NIPS4B_BIRD_CHALLENGE_TRAIN_TEST_WAV")
-            data = os.path.join('data',"PYRE")
+            if "nips" in targets:
+                data = os.path.join('data', 'raw',"NIPS4B_BIRD_CHALLENGE_TRAIN_TEST_WAV")
+            elif "pyre" in targets:
+                data = os.path.join('data',"PYRE")
 
             with open('config/features-params.json') as fh:
                 feats_cfg = json.load(fh)

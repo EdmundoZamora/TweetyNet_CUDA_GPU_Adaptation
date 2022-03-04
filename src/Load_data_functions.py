@@ -376,3 +376,22 @@ def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_
     # uids = torch.LongTensor(uids).cuda()
 
     return X, Y, uids
+
+def load_splits(spcs, ys, uids, data_path, folder, set_type, use_dump=True):
+    mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_{}.pkl".format(folder, set_type))
+    print(f"loading dataset for {set_type}")
+    if os.path.exists(mel_dump_file) and use_dump:
+        with open(mel_dump_file, "rb") as f:
+            dataset = pickle.load(f)
+    else: # need to go through each element
+        dataset = {"X": spcs, "Y": ys, "uids": uids}
+        with open(mel_dump_file, "wb") as f:
+            pickle.dump(dataset, f)
+    X = np.array([dataset["X"]])#.astype(np.float32)/255
+    X = X.reshape(X.shape[1], 1, X.shape[3], X.shape[4])
+    Y = np.array([dataset["Y"]])#.astype(np.longlong)
+    Y = Y.reshape(Y.shape[1], Y.shape[2])
+    uid = np.array([dataset["uids"]])
+    uid = uid.reshape(uid.shape[1])
+    print(X.shape, Y.shape, uid.shape)
+    return X, Y, uid
