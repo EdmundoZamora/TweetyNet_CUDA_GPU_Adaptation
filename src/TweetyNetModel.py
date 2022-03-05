@@ -179,7 +179,8 @@ class TweetyNetModel(nn.Module):
             correct = 0.0
             edit_distance = 0.0
             
-            for i, data in enumerate(train_loader,0):
+            loop = tqdm(enumerate(train_loader), total=len(train_loader), leave=False)
+            for i, data in loop: # train loader is custom audiodataset, getitem, for spectrogram.
                 inputs, labels, uid = data
                 #print(type(input))
                 #print(type(labels))
@@ -274,11 +275,15 @@ class TweetyNetModel(nn.Module):
                     # edit_distance += syllable_edit_distance(output[j], labels[j])'''
 
                 # print update Improve this to make it better Maybe a global counter
-                if i % 10 == 9:  # print every 10 mini-batches
-                    print('[%d, %5d] loss: %.3f' % (e + 1, i + 1, running_loss ))
-
+                #if i % 10 == 9:  # print every 10 mini-batches
+                #    print('[%d, %5d] loss: %.3f' % (e + 1, i + 1, running_loss ))
+                loop.set_description(f"Epoch [{e}/{epochs}]")
+                loop.set_postfix(loss = loss.item(), acc = 100*float((output == labels).float().sum())/(len(data[1]) * self.model.input_shape[-1]))
+                    
             history["loss"].append(running_loss)
             history["acc"].append(100 * correct / (len(train_loader.dataset) * self.window_size))
+            print("Running Accuracy: ", 100 * float(correct / (len(train_loader.dataset) * self.model.input_shape[-1])))
+            print("Running Loss: ", running_loss)
             # history["edit_distance"].append(edit_distance / (len(train_loader.dataset) * self.window_size))
             if val_loader != None:
                 self.validation_step(val_loader, history)
@@ -365,6 +370,8 @@ class TweetyNetModel(nn.Module):
             history["val_loss"].append(val_loss)
             history["val_acc"].append(100 * val_correct / (len(val_loader.dataset) * self.window_size))
             # history["val_edit_distance"].append(val_edit_distance / (len(val_loader.dataset) * self.window_size))
+            print("Running Validation Accuracy: ", 100 * float(val_correct / (len(val_loader.dataset) * self.model.input_shape[-1])))
+            print("Running Validation Loss: ", val_loss)
             if history["val_acc"][-1] > history["best_weights"]:
                 torch.save(self.model.state_dict(), "best_model_weights.h5")
                 history["best_weights"] = history["val_acc"][-1]
