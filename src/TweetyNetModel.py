@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import torch
 import librosa
 from torch import cuda
-
+from tqdm import tqdm
 #from network import TweetyNet
 from torch.utils.data import DataLoader
 from network import TweetyNet
@@ -208,7 +208,7 @@ class TweetyNetModel(nn.Module):
                 '''# print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
                 # print(f'device in training step {torch.cuda.get_device_name(self.device)}')'''
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
-                print('Training Step')
+                # print('Training Step')
                 '''# print(f'labels shape in train {labels.shape}')# tutor
 
                 # print(f'are inputs from training step in GPU? {inputs.is_cuda}')
