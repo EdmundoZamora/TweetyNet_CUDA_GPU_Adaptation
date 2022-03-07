@@ -2,6 +2,6 @@
     "time_bins":86,
     "lr":0.005,
     "batch_size":64,
-    "epochs":1,
+    "epochs":10,
     "outdir":"data/out"
 }

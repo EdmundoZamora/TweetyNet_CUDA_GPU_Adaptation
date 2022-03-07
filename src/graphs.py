@@ -66,13 +66,13 @@ def file_graph_temporal(num_graphs):
         # # pl.show()
         # g.savefig(os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot'))
         # plt.close('all')
-        fig = px.scatter(dfm_viz, y='bin', x="temporal_frame_start_times", color="bin", width=5*800,height=400,)
+        fig = px.scatter(dfm_viz, y='bin', x="temporal_frame_start_times", color="bin")
         fig.update_traces(marker_size=5)
-        fig.update_layout(title_text = title, title_x=0.5,legend_title_text='Annotation',yaxis_title=None)
+        fig.update_layout(title_text = title,title_x = 0.5,legend_title_text='Annotation',yaxis_title=None) #
         # fig.update_yaxes(visible=False, showticklabels=True)
         # fig.show()
-        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot.png'), format='png')
-        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot.html'))
+        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-8]+'_temporal_plot.png'), format='png')
+        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-8]+'_temporal_plot.html'),full_html=False, include_plotlyjs="cdn")
 
 # file_graph_temporal(2)
 
@@ -114,7 +114,6 @@ def file_graph_temporal_rates(num_graphs):
         dfm_viz.loc[(dfm_viz.bin == 'cfnmtx' ) & (dfm_viz.Presence == 'FP'), "bin"] = "FP"
         dfm_viz.loc[(dfm_viz.bin == 'cfnmtx' ) & (dfm_viz.Presence == 'FN'), "bin"] = "FN"
         
-
         
         '''
         # g = sns.scatterplot(data=dfm_viz, x="temporal_frame_start_times", y="Presence", hue="bin")
@@ -134,12 +133,12 @@ def file_graph_temporal_rates(num_graphs):
         # g.savefig(os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot_rate'))
         # plt.close('all')
 
-        fig = px.scatter(dfm_viz, y='bin', x="temporal_frame_start_times", color="bin", width=5*800,height=400,)
+        fig = px.scatter(dfm_viz, y='bin', x="temporal_frame_start_times", color="bin")
         fig.update_traces(marker_size=5)
-        fig.update_layout(title_text = title, title_x=0.5,legend_title_text='Annotation',yaxis_title=None)
+        fig.update_layout(title_text = title,title_x = 0.5,legend_title_text='Annotation',yaxis_title=None)
         # fig.update_yaxes(visible=False, showticklabels=True)
         # fig.show()
-        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot_rates.png'), format='png')
-        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot_rates.html'))
+        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-8]+'_temporal_plot_rates.png'), format='png')
+        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-8]+'_temporal_plot_rates.html'),full_html=False, include_plotlyjs="cdn")
 
 # file_graph_temporal(11)
