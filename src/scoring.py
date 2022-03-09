@@ -156,7 +156,7 @@ def file_score(num_files):
     frame = frame.append(scores)
 
     frame = frame.fillna(0)
-
+    print(d)
     frame['ERROR_RATE'] = frame.apply (lambda row: error_rate(row), axis=1)
     frame['ACCURACY'] = frame.apply (lambda row: accuracy(row), axis=1)
     frame['PRECISION'] = frame.apply (lambda row: precision(row), axis=1)
@@ -232,8 +232,11 @@ def accuracy(row):
 
 def sensitivity(row): # Recall or True positive rate
     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
-    sense = (TP)/(TP+FN)
-    return sense
+    if TP == 0 or FN == 0:
+        return 0
+    else:
+        sense = (TP)/(TP+FN)
+        return sense
 
 def specificity(row): # True negative rate
     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']

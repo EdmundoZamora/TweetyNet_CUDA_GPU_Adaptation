@@ -1,7 +1,7 @@
 import os
 import sys
 import json 
-
+import torch
 sys.path.insert(0, 'src')
 
 #region 
@@ -17,6 +17,7 @@ import env_setup
 from etl import get_data
 from NIPS_training import apply_features, model_build, evaluate
 
+
 def main(targets):
     '''
     Runs the main project pipeline logic, given the targets.
@@ -28,6 +29,7 @@ def main(targets):
     including skip in the targets skips the data downloading step.
     `main` runs the targets in order of data=>features=>model=>classifications.
     '''
+    torch.manual_seed(0)
 
     if 'data' in targets:
         if "skip" in targets:

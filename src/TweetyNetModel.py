@@ -326,7 +326,7 @@ class TweetyNetModel(nn.Module):
                 # print(f'are validation labels from training step in GPU? {labels.is_cuda}')
                 # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
                 # print(f'input shape in val {inputs.shape}') # tutor'''
-                print('Validation Step')
+                # print('Validation Step')
 
                 output = self.model(inputs)
                 '''# output = output.reshape(labels.shape[0], labels.shape[1]) #tutor
@@ -414,7 +414,7 @@ class TweetyNetModel(nn.Module):
 
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 # print(f'labels shape {labels.shape}')
-                print('Testing Step')
+                # print('Testing Step')
 
                 output = self.model(inputs) # what is this output look like?, specify batch size here?
                 '''# output = output.reshape(labels.shape[0], labels.shape[1]) # tutor

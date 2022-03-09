@@ -288,9 +288,9 @@ def compute_feature(data_path, folder, SR, n_mels, frame_size, hop_length, nonBi
     
     for f in filenames:
 		#signal, SR = downsampled_mono_audio(signal, sample_rate, SR)
-        spc = wav2spc(os.path.join(data_path, folder, f), fs=SR, n_mels=n_mels)
+        spc, _ = wav2spc(os.path.join(data_path, folder, f), fs=SR, n_mels=n_mels)
         Y = compute_Y(f, spc, tags, data_path, folder, SR, frame_size, hop_length, nonBird_labels, found)
-        features["uids"].append(f)
+        features["uids"].append("0_"+f)
         features["X"].append(spc)
         features["Y"].append(Y)
     return features
