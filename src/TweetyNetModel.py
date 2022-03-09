@@ -44,7 +44,7 @@ class TweetyNetModel(nn.Module):
                                pool2_size=(8, 1),
                                pool2_stride=(8, 1),
                                hidden_size=None,
-                               rnn_dropout=0.,
+                               rnn_dropout=0., #0.3
                                num_layers=1
                                )
         self.device = torch.cuda.current_device()

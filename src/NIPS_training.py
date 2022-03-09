@@ -67,11 +67,48 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
         X_val, Y_val, uids_val = load_splits(X_val, Y_val, uids_val, datasets_dir, folder, "val")
         X_test, Y_test, uids_test = load_splits(X_test, Y_test, uids_test, datasets_dir, folder, "test")
         all_tags = [0,1]
+
+        device = torch.cuda.device('cuda:0')
+        # print(f'device {device.get_device_name()}')
+        print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+        name = torch.cuda.get_device_name(device)
+        print(f"Using {name} ")# torch.cuda.get_device_name(0)
+
+        #1) batch the X_train
+        #For ex, batch_size=5 means that each batch is gonna be (5, 216, 72)
+        #2) specify in the model that the input is (216, 72)
+
+        X_train = torch.FloatTensor(X_train).to(torch.cuda.current_device())#.cuda()
+        X_val = torch.FloatTensor(X_val).to(torch.cuda.current_device())#.cuda()
+
+        Y_train = torch.LongTensor(Y_train).to(torch.cuda.current_device())#.cuda()
+        Y_val = torch.LongTensor(Y_val).to(torch.cuda.current_device())#.cuda()
+
+        X_test = torch.FloatTensor(X_test).to(torch.cuda.current_device())#.cuda()
+        Y_test = torch.LongTensor(Y_test).to(torch.cuda.current_device())#.cuda()
+
+        print(f'is X_train on GPU? {X_train.is_cuda}')
+        print(f'is X_val on GPU? {X_val.is_cuda}')
+
+        print(f'is Y_train on GPU? {Y_train.is_cuda}')
+        print(f'is Y_val on GPU? {Y_val.is_cuda}')
+
+        print(f'is X_test on GPU? {X_test.is_cuda}')
+        print(f'is Y_test on GPU? {Y_test.is_cuda}')
+
+        print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+
+        train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
+        val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
+        test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
+        return all_tags, n_mels, train_dataset, val_dataset, test_dataset, HOP_LENGTH, SR
+        
     elif dataset == "PYRE":
+        folder = "Mixed_Bird-20220126T212121Z-003"
         X, Y, uids, time_bins = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH)
         all_tags = [0,1]
         # need
-        #Split by file
+        #Split by file make CPU and GPU have the same files in splits though
         pre_X_train, pre_X_val, pre_Y_train, pre_Y_val, pre_uids_train, pre_uids_val, pre_time_bins_train, pre_time_bins_val = train_test_split(X, Y, uids, time_bins, test_size=.3) # Train 70% Val 30%
 
         pre_X_val, pre_X_test, pre_Y_val, pre_Y_test, pre_uids_val, pre_uids_test, pre_time_bins_val, pre_time_bins_test= train_test_split(pre_X_val, pre_Y_val, pre_uids_val, pre_time_bins_val, test_size=.66)# val 10%, test 20%
@@ -80,45 +117,81 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
         X_train, Y_train, uids_train, = load_pyrenote_splits(pre_X_train, pre_Y_train, pre_uids_train, pre_time_bins_train, window_size, datasets_dir, folder, "train")
         X_val, Y_val, uids_val, = load_pyrenote_splits(pre_X_val, pre_Y_val, pre_uids_val, pre_time_bins_val, window_size, datasets_dir, folder, "val")
         X_test, Y_test, uids_test, = load_pyrenote_splits(pre_X_test, pre_Y_test, pre_uids_test, pre_time_bins_test, window_size, datasets_dir, folder, "test")
+
+        device = torch.cuda.device('cuda:0')
+        # print(f'device {device.get_device_name()}')
+        print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+        name = torch.cuda.get_device_name(device)
+        print(f"Using {name} ")# torch.cuda.get_device_name(0)
+
+        #1) batch the X_train
+        #For ex, batch_size=5 means that each batch is gonna be (5, 216, 72)
+        #2) specify in the model that the input is (216, 72)
+
+        X_train = torch.FloatTensor(X_train).to(torch.cuda.current_device())#.cuda()
+        X_val = torch.FloatTensor(X_val).to(torch.cuda.current_device())#.cuda()
+
+        Y_train = torch.LongTensor(Y_train).to(torch.cuda.current_device())#.cuda()
+        Y_val = torch.LongTensor(Y_val).to(torch.cuda.current_device())#.cuda()
+
+        X_test = torch.FloatTensor(X_test).to(torch.cuda.current_device())#.cuda()
+        Y_test = torch.LongTensor(Y_test).to(torch.cuda.current_device())#.cuda()
+
+        print(f'is X_train on GPU? {X_train.is_cuda}')
+        print(f'is X_val on GPU? {X_val.is_cuda}')
+
+        print(f'is Y_train on GPU? {Y_train.is_cuda}')
+        print(f'is Y_val on GPU? {Y_val.is_cuda}')
+
+        print(f'is X_test on GPU? {X_test.is_cuda}')
+        print(f'is Y_test on GPU? {Y_test.is_cuda}')
+
+        print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+
+        train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
+        val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
+        test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
+        return all_tags, n_mels, train_dataset, val_dataset, test_dataset, HOP_LENGTH, SR
     else:
         print(f"dataset:{dataset} does not exist")
         return None
 
-    device = torch.cuda.device('cuda:0')
-    # print(f'device {device.get_device_name()}')
-    print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-    name = torch.cuda.get_device_name(device)
-    print(f"Using {name} ")# torch.cuda.get_device_name(0)
+    # device = torch.cuda.device('cuda:0')
+    # # print(f'device {device.get_device_name()}')
+    # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+    # name = torch.cuda.get_device_name(device)
+    # print(f"Using {name} ")# torch.cuda.get_device_name(0)
     
-    #1) batch the X_train
-    #For ex, batch_size=5 means that each batch is gonna be (5, 216, 72)
-    #2) specify in the model that the input is (216, 72)
+    # #1) batch the X_train
+    # #For ex, batch_size=5 means that each batch is gonna be (5, 216, 72)
+    # #2) specify in the model that the input is (216, 72)
 
-    X_train = torch.FloatTensor(X_train).to(torch.cuda.current_device())#.cuda()
-    X_val = torch.FloatTensor(X_val).to(torch.cuda.current_device())#.cuda()
+    # X_train = torch.FloatTensor(X_train).to(torch.cuda.current_device())#.cuda()
+    # X_val = torch.FloatTensor(X_val).to(torch.cuda.current_device())#.cuda()
 
-    Y_train = torch.LongTensor(Y_train).to(torch.cuda.current_device())#.cuda()
-    Y_val = torch.LongTensor(Y_val).to(torch.cuda.current_device())#.cuda()
+    # Y_train = torch.LongTensor(Y_train).to(torch.cuda.current_device())#.cuda()
+    # Y_val = torch.LongTensor(Y_val).to(torch.cuda.current_device())#.cuda()
 
-    X_test = torch.FloatTensor(X_test).to(torch.cuda.current_device())#.cuda()
-    Y_test = torch.LongTensor(Y_test).to(torch.cuda.current_device())#.cuda()
+    # X_test = torch.FloatTensor(X_test).to(torch.cuda.current_device())#.cuda()
+    # Y_test = torch.LongTensor(Y_test).to(torch.cuda.current_device())#.cuda()
 
-    print(f'is X_train on GPU? {X_train.is_cuda}')
-    print(f'is X_val on GPU? {X_val.is_cuda}')
+    # print(f'is X_train on GPU? {X_train.is_cuda}')
+    # print(f'is X_val on GPU? {X_val.is_cuda}')
 
-    print(f'is Y_train on GPU? {Y_train.is_cuda}')
-    print(f'is Y_val on GPU? {Y_val.is_cuda}')
+    # print(f'is Y_train on GPU? {Y_train.is_cuda}')
+    # print(f'is Y_val on GPU? {Y_val.is_cuda}')
 
-    print(f'is X_test on GPU? {X_test.is_cuda}')
-    print(f'is Y_test on GPU? {Y_test.is_cuda}')
+    # print(f'is X_test on GPU? {X_test.is_cuda}')
+    # print(f'is Y_test on GPU? {Y_test.is_cuda}')
 
-    print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
+    # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
     
-    train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
-    val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
-    test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
+    # train_dataset = CustomAudioDataset(X_train, Y_train, uids_train)
+    # val_dataset = CustomAudioDataset(X_val, Y_val, uids_val)
+    # test_dataset = CustomAudioDataset(X_test, Y_test, uids_test)
+    # return all_tags, n_mels, train_dataset, val_dataset, test_dataset, HOP_LENGTH, SR
 
-    X, Y, uid = train_dataset.__getitem__(0)
+    # X, Y, uid = train_dataset.__getitem__(0)
 
     #region
     # print(X.detach().cpu().numpy())
@@ -185,7 +258,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     # train_dataset = (train_dataset)
     # val_dataset = (val_dataset)
     #endregion
-    return all_tags, n_mels, train_dataset, val_dataset, test_dataset, HOP_LENGTH, SR
+    # return all_tags, n_mels, train_dataset, val_dataset, test_dataset, HOP_LENGTH, SR
 
 def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, time_bins, lr, batch_size, epochs, outdir, ):
     

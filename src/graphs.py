@@ -23,7 +23,7 @@ def file_graph_temporal(num_graphs):
 
         to_plot = evals[['pred','label','temporal_frame_start_times']].copy(True) #,'cfnmtx'
 
-        dfm = to_plot.melt("temporal_frame_start_times", var_name='bin', value_name='vals')
+        # dfm = to_plot.melt("temporal_frame_start_times", var_name='bin', value_name='vals')
 
         viz = to_plot.copy(True)
 
@@ -71,10 +71,9 @@ def file_graph_temporal(num_graphs):
         fig.update_layout(title_text = title,title_x = 0.5,legend_title_text='Annotation',yaxis_title=None) #
         # fig.update_yaxes(visible=False, showticklabels=True)
         # fig.show()
-        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-8]+'_temporal_plot.png'), format='png')
-        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-8]+'_temporal_plot.html'),full_html=False, include_plotlyjs="cdn")
+        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot.png'), format='png')
+        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot.html'),full_html=False, include_plotlyjs="cdn")
 
-# file_graph_temporal(2)
 
 
 def file_graph_temporal_rates(num_graphs):
@@ -83,7 +82,7 @@ def file_graph_temporal_rates(num_graphs):
     # print(filenames)
     # print(filenames[0][:-4])
     # os.makedirs(os.path.join("data","out","temporal_plots"))
-    for i in range(len(filenames)):
+    for i in range(num_graphs):
         evals = pd.read_csv(os.path.join("data/out/separate_evaluations",filenames[i])) 
 
         title = evals['file'].unique()[0]
@@ -138,7 +137,5 @@ def file_graph_temporal_rates(num_graphs):
         fig.update_layout(title_text = title,title_x = 0.5,legend_title_text='Annotation',yaxis_title=None)
         # fig.update_yaxes(visible=False, showticklabels=True)
         # fig.show()
-        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-8]+'_temporal_plot_rates.png'), format='png')
-        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-8]+'_temporal_plot_rates.html'),full_html=False, include_plotlyjs="cdn")
-
-# file_graph_temporal(11)
+        fig.write_image(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot_rates.png'), format='png')
+        fig.write_html(file=os.path.join("data/out/temporal_plots",filenames[i][:-4]+'_temporal_plot_rates.html'),full_html=False, include_plotlyjs="cdn")

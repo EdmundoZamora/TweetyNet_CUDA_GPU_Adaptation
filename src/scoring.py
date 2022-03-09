@@ -117,7 +117,7 @@ def file_score(num_files):
         try:
             # real = pd.read_csv(os.path.join("data/raw/NIPS4B_BIRD_CHALLENGE_TRAIN_TEST_WAV/temporal_annotations_nips4b",morfi))
             # print(tabulate(real, headers='keys', tablefmt='psql'))
-            file_filt.to_csv(os.path.join("data/out/separate_evaluations","classificationfile_"+curr_file+".csv")) #curr_file[-7:-4]
+            file_filt.to_csv(os.path.join("data/out/separate_evaluations","classificationfile_"+curr_file[:-4]+".csv")) #curr_file[-7:-4]
             # acc_score = file_filt['Acc'].to_list()
 
             # print('\n')
@@ -156,7 +156,7 @@ def file_score(num_files):
     frame = frame.append(scores)
 
     frame = frame.fillna(0)
-    print(d)
+    # print(d)
     frame['ERROR_RATE'] = frame.apply (lambda row: error_rate(row), axis=1)
     frame['ACCURACY'] = frame.apply (lambda row: accuracy(row), axis=1)
     frame['PRECISION'] = frame.apply (lambda row: precision(row), axis=1)
@@ -219,16 +219,66 @@ def file_score(num_files):
 # print('---------------------------------------------------------------------')
 #endregion
 
+#region
+# def error_rate(row):
+#     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
+#     error = (FP + FN)/(TP + TN + FN + FP)
+#     return error
+
+# def accuracy(row):
+#     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
+#     # return (TP,TN,FP,FN)
+#     accura = (TP + TN)/(TP + TN + FN + FP) 
+#     return accura
+
+# def sensitivity(row): # Recall or True positive rate
+#     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
+#     if TP == 0 or FN == 0:
+#         return 0
+#     else:
+#         sense = (TP)/(TP+FN)
+#         return sense
+
+# def specificity(row): # True negative rate
+#     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
+#     specific = (TN)/(TN + FP)
+#     return specific
+
+# def precision(row): # positive predictive value
+#     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
+#     if TP == 0 and FP == 0:
+#         return 0
+#     else:
+#         prec = (TP)/(TP+FP)
+#         return prec
+
+# def false_pos_rate(row): 
+#     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
+#     fpr = (FP)/(TN+FP)
+#     return fpr
+
+# def f1_score(row):
+#     prec,rec = row['PRECISION'],row['RECALL']
+#     fpr = (2*prec*rec)/float(prec+rec)
+#     return fpr
+#endregion
+
 def error_rate(row):
     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
-    error = (FP + FN)/(TP + TN + FN + FP)
-    return error
+    if (TP == 0 or TN == 0) or (FN == 0 or FP == 0) :
+        return 0
+    else:
+        error = (FP + FN)/(TP + TN + FN + FP)
+        return error
 
 def accuracy(row):
     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
     # return (TP,TN,FP,FN)
-    accura = (TP + TN)/(TP + TN + FN + FP) 
-    return accura
+    if (TP == 0 or TN == 0) or (FN == 0 or FP == 0) :
+        return 0
+    else:
+        accura = (TP + TN)/(TP + TN + FN + FP) 
+        return accura
 
 def sensitivity(row): # Recall or True positive rate
     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
@@ -240,8 +290,11 @@ def sensitivity(row): # Recall or True positive rate
 
 def specificity(row): # True negative rate
     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
-    specific = (TN)/(TN + FP)
-    return specific
+    if TN == 0 or FP == 0:
+        return 0
+    else:
+        specific = (TN)/(TN + FP)
+        return specific
 
 def precision(row): # positive predictive value
     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
@@ -253,12 +306,16 @@ def precision(row): # positive predictive value
 
 def false_pos_rate(row): 
     TP,TN,FP,FN = row['TP'],row['TN'],row['FP'],row['FN']
-    fpr = (FP)/(TN+FP)
-    return fpr
+    if TN == 0 or FP == 0:
+        return 0
+    else:
+        fpr = (FP)/(TN+FP)
+        return fpr
 
 def f1_score(row):
     prec,rec = row['PRECISION'],row['RECALL']
-    fpr = (2*prec*rec)/float(prec+rec)
-    return fpr
-
-# file_score(2)
+    if prec == 0 or rec == 0:
+        return 0
+    else:
+        fpr = (2*prec*rec)/float(prec+rec)
+        return fpr

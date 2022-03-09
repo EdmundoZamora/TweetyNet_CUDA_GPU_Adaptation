@@ -19,13 +19,8 @@ def get_frames(x, frame_size, hop_length):
     return ((x) / hop_length) + 1 #(x - frame_size)/hop_length + 1
 def frames2seconds(x, sr):
     return x/sr
-def find_tags(data_path, folder):
-    fnames = os.listdir(os.path.join(data_path, "temporal_annotations_nips4b"))
-    csvs = []
-    for f in fnames:
-        #print(f)
-        csvs.append(pd.read_csv(os.path.join(data_path, "temporal_annotations_nips4b", f), index_col=False, names=["start", "duration", "tag"]))
-    return csvs
+
+
 
 # works
 def find_pyrenote_tags(data_path, folder):
@@ -260,6 +255,18 @@ def window_spectrograms(spc, Y, uid, time_bin, windowsize):
     uid_split = [str(i) + "_" + uid for i in range(freq_axis)]
     return spc_split, Y_split, uid_split
 
+
+
+
+
+def find_tags(data_path, folder):
+    fnames = os.listdir(os.path.join(data_path, "temporal_annotations_nips4b"))
+    csvs = []
+    for f in fnames:
+        #print(f)
+        csvs.append(pd.read_csv(os.path.join(data_path, "temporal_annotations_nips4b", f), index_col=False, names=["start", "duration", "tag"]))
+    return csvs
+
 def create_tags(data_path, folder):
     csvs = find_tags(data_path, folder)
     tags = [csv["tag"] for csv in csvs]
@@ -365,7 +372,7 @@ def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_
     inds = [i for i, x in enumerate(dataset["X"]) if x.shape[1] == 216]
     # X = np.array([dataset["X"][i].transpose() for i in inds]).astype(np.float32)/255 # tune
     # X = np.array([dataset["X"][i] for i in inds]).astype(np.float32)/255
-    X = np.array([dataset["X"][i] for i in inds]).astype(np.float32)/255 # over training, with norm label, .005 lr, 5, bs, 500 E
+    X = np.array([(dataset["X"][i]) for i in inds]).astype(np.float32)/255 
     X = X.reshape(X.shape[0], 1, X.shape[1], X.shape[2])
     Y = np.array([dataset["Y"][i] for i in inds]).astype(np.longlong)
     uids = np.array([dataset["uids"][i] for i in inds])
