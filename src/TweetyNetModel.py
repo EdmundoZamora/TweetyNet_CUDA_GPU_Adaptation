@@ -47,6 +47,7 @@ class TweetyNetModel(nn.Module):
                                rnn_dropout=0., #0.3
                                num_layers=1
                                )
+
         self.device = torch.cuda.current_device()
         self.model.to(self.device)
         self.binary = binary
@@ -198,33 +199,9 @@ class TweetyNetModel(nn.Module):
                 # print(bird)
                 # print(inputs[0])
                 # return ...
-                
-                # print(inputs.shape) # CUDA error: out of memory
-                
-                
-                # 
-
-
-                '''# print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-                # print(f'device in training step {torch.cuda.get_device_name(self.device)}')'''
+        
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
-                # print('Training Step')
-                '''# print(f'labels shape in train {labels.shape}')# tutor
 
-                # print(f'are inputs from training step in GPU? {inputs.is_cuda}')
-                # print(f'are labels from training step in GPU? {labels.is_cuda}')
-                # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-                # print(f'shape inputs in train {inputs.shape}') # tutor
-                # print(f'EPOCH {e}')'''
-
-
-
-                '''#print(inputs.type())
-
-                # print(labels.type())
-                #print(inputs)'''
-                
-                
                 self.optimizer.zero_grad()# curr
 
                 # labels = labels.to(self.device)
@@ -244,6 +221,7 @@ class TweetyNetModel(nn.Module):
                 # print(output.requires_grad) #tutor
 
                 loss = self.criterion(output, labels)
+
                 loss.backward()
 
                 # print(output.requires_grad)
@@ -251,42 +229,31 @@ class TweetyNetModel(nn.Module):
                 self.optimizer.step()
                 scheduler.step()
 
-                # get statistics
-                # running_loss = loss.item() # tutor
                 running_loss += loss.item()
 
-                #argmax or max??? arg returns the indices and max just the element
-                # output = torch.max(output, dim=1)[1]#.squeeze() #.cpu().detach().numpy() #returns max index #OG
                 output = torch.max(output, dim=1)[1]#.squeeze()
-                # print(f"shape in train {output.shape}") # tutor
-                # return 
-                # print(f'argmax of output {output}')
-                # return
-                #convert output values to binary.
+        
                 correct += (output == labels).float().sum().cpu().detach().numpy()
-                # print(correct)
-                '''# return
 
-                # print(f'running loss type {type(running_loss)}')
-                # print(f'correct type {type(correct)}')
-
-                # causing issue FLAG
                 # for j in range(len(labels)):
                     # edit_distance += syllable_edit_distance(output[j], labels[j])'''
 
                 # print update Improve this to make it better Maybe a global counter
                 #if i % 10 == 9:  # print every 10 mini-batches
                 #    print('[%d, %5d] loss: %.3f' % (e + 1, i + 1, running_loss ))
+
                 loop.set_description(f"Epoch [{e}/{epochs}]")
                 loop.set_postfix(loss = loss.item(), acc = 100*float((output == labels).float().sum())/(len(data[1]) * self.model.input_shape[-1]))
                     
             history["loss"].append(running_loss)
             history["acc"].append(100 * correct / (len(train_loader.dataset) * self.window_size))
+            
             print("Running Accuracy: ", 100 * float(correct / (len(train_loader.dataset) * self.model.input_shape[-1])))
             print("Running Loss: ", running_loss)
             # history["edit_distance"].append(edit_distance / (len(train_loader.dataset) * self.window_size))
+            
             if val_loader != None:
-                self.validation_step(val_loader, history)
+                self.validation_step(val_loader, history) # , scheduler
         print('Finished Training')
         return history
 
@@ -315,53 +282,23 @@ class TweetyNetModel(nn.Module):
                 # else:
                 #     pass
 
-                
-
-                '''# inputs, labels = inputs.to(self.device), labels.to(self.device)
-
-                # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-                # print(f'device in training step {torch.cuda.get_device_name(self.device)}')'''
+            
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
-                '''# print(f'are validation inputs from training step in GPU? {inputs.is_cuda}')
-                # print(f'are validation labels from training step in GPU? {labels.is_cuda}')
-                # print(f'using device {torch.cuda.get_device_name(torch.cuda.current_device())}')
-                # print(f'input shape in val {inputs.shape}') # tutor'''
-                # print('Validation Step')
+
+                # self.optimizer.zero_grad()
 
                 output = self.model(inputs)
-                '''# output = output.reshape(labels.shape[0], labels.shape[1]) #tutor
-                #if self.binary:
-                #    labels = torch.from_numpy((np.array([[x] * output.shape[-1] for x in labels])))'''
+
                 loss = self.criterion(output, labels)
-                '''# check the outputs and labels here too.
-                # get statistics
-                # val_loss = loss.item() # tutor'''
+
+                # loss.backward()
+                # self.optimizer.step()
+                # scheduler.step()
+                
                 val_loss += loss.item() #curr
 
-                '''
-                1) You should check that the model is set to model.train() before training
-                2) check that the running_loss is not being accumulated
-                For valid/train
-                3) train for much longer epochs
-                4) scan different learning rates
-                5) print out the output prediction after self.model(inputs) and compare it with the labels
-                While it's training
-                Print a comparison after each 100 epochs
-                Between 1 sample
-                So -> print(output[0])
-                And -> print(labels([0[)
-                '''
-
-                #argmax or max??? arg returns the indices and max just the element
-
-                # output = torch.max(output, dim=1)[1]
-                output = torch.max(output, dim=1)[1]#.squeeze()
-                # print(f'output shape in val {output}')
+                output = torch.max(output, dim=1)[1]  # gets indices of correct predictions of timebins in windows
                 
-                '''
-                #convert outputs to binary 0 less than .5
-                '''
-                # print a comparison after 100 epochs a sample, output of zero and labels zero
                 val_correct += (output == labels).float().sum().cpu().detach().numpy()
 
                 '''# for j in range(len(labels)):
@@ -370,8 +307,11 @@ class TweetyNetModel(nn.Module):
             history["val_loss"].append(val_loss)
             history["val_acc"].append(100 * val_correct / (len(val_loader.dataset) * self.window_size))
             # history["val_edit_distance"].append(val_edit_distance / (len(val_loader.dataset) * self.window_size))
+
+
             print("Running Validation Accuracy: ", 100 * float(val_correct / (len(val_loader.dataset) * self.model.input_shape[-1])))
             print("Running Validation Loss: ", val_loss)
+
             if history["val_acc"][-1] > history["best_weights"]:
                 torch.save(self.model.state_dict(), "best_model_weights.h5")
                 history["best_weights"] = history["val_acc"][-1]
@@ -417,6 +357,8 @@ class TweetyNetModel(nn.Module):
                 # print('Testing Step')
 
                 output = self.model(inputs) # what is this output look like?, specify batch size here?
+
+
                 '''# output = output.reshape(labels.shape[0], labels.shape[1]) # tutor
                 # print(f'Testing step output shape {output.shape}') # 100, value (torch.Size([41,2,216]))
                 # return 

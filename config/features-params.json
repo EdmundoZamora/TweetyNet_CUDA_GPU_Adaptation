@@ -1,11 +1,11 @@
 {
-    "folder" : "train",
+    "folder" : "Mixed_Bird-20220126T212121Z-003",
     "SR":44100,
-    "n_mels":72,
+    "n_mels":86,
     "FRAME_SIZE":2048,
     "HOP_LENGTH":1024,
     "nonBird_labels":["Plasab_song", "Unknown", "Tibtom_song", "Lyrple_song", "Plaaff_song", "Pelgra_call", "Cicatr_song", "Cicorn_song", "Tetpyg_song", "Ptehey_song"],
     "found": {"Plasab_song": 0, "Unknown": 0, "Tibtom_song": 0, "Lyrple_song": 0, "Plaaff_song": 0, "Pelgra_call": 0, "Cicatr_song": 0, "Cicorn_song": 0, "Tetpyg_song": 0, "Ptehey_song": 0},
-    "window_size":5,
-    "dataset":"NIPS"
+    "window_size":2,
+    "dataset":"PYRE"
 }
