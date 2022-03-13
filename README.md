@@ -7,3 +7,8 @@
 ### Run entire project with:  python run.py data features model evaluate  : deletes data directory and recreates each time the above command is ran.
 
 ### If data is already downloaded, spare your self the wait using : python run.py data skip features model evaluate nips: including skip in the targets skips the data downloading step.
+
+
+website: [DSC180-A09-Eco-Acoustic-Event-Detection](https://edmundozamora.github.io/DSC180-A09-Eco-Acoustic-Detection)
+
+link to CPU Model Repository: [CPU Model Repo](https://github.com/EdmundoZamora/Q1-Project-Code)
