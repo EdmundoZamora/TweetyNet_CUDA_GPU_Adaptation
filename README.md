@@ -6,4 +6,4 @@
 
 ### Run entire project with:  python run.py data features model evaluate  : deletes data directory and recreates each time the above command is ran.
 
-### If data is already downloaded, spare your self the wait using : python run.py data skip features model evaluate : including skip in the targets skips the data downloading step.
+### If data is already downloaded, spare your self the wait using : python run.py data skip features model evaluate nips: including skip in the targets skips the data downloading step.
