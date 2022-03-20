@@ -1,5 +1,5 @@
 {
-    "folder" : "Mixed_Bird-20220126T212121Z-003",
+    "folder" : "train",
     "SR":44100,
     "n_mels":72,
     "FRAME_SIZE":2048,
