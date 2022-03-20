@@ -1,5 +1,5 @@
 {
-    "time_bins":86,
+    "time_bins":216,
     "lr":0.005,
     "batch_size":64,
     "epochs":100,
