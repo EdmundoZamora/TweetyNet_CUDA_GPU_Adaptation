@@ -1,5 +1,5 @@
 {
     "Github Repository":"https://github.com/EdmundoZamora/TweetyNet_CUDA_GPU_Adaptation",
-    "edzamora":"edzamora/tweetynet-project:latest", 
-    "build-script":"python -u run.py data features model evaluate"    
+    "edzamora":"edzamora/tweetynet-project:tqdm", 
+    "build-script":"python -u run.py data features model evaluate nips"    
 }
