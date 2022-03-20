@@ -69,3 +69,10 @@ nvidia-smi
 
 the table will show % gpu mem usage and temp
 
+python -u run.py skip features model evalutate > logs.txt 2&>1 &
+
+launch-scipy-ml-gpu.sh -i edzamora/tweetynet-project:kaleido -P -c 8 -m 64 -g 1 -v 2080ti -b
+git clone https://github.com/EdmundoZamora/TweetyNet_CUDA_GPU_Adaptation.git
+cd TweetyNet_CUDA_GPU_Adaptation
+python -u run.py data features model evaluate nips
+python -W ignore run.py data features model evaluate nips
