@@ -1,0 +1,31 @@
+0) GET BOTH GPU AND CPU MODELS TO TRAIN ON SAME FILES AND TEST ON SAME FILES.
+    - files 
+
+    Get pyrenote processing to process nips data
+        1) condense the nips annotations - DONE
+    test nips annotations and training using pyrenote processing
+
+    upload pyrenote data to cloud cluster
+
+    pandas jpnb to select files for trainging and testing.
+
+        
+
+K-folds cross validation.
+https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html
+
+
+1) Generalizing the data ingesting, and project reproducment process.
+
+2) incorporating the window slicing, interface, and directory management for user experience improvement
+3) graphs  and htmls to a outfolder and interactive window interface.
+
+4) uploading the rest of the pyre note data to the cluser, speed and performance measuring
+5) benchmarking and citing the original work.
+
+6) blueprinting the process for ease of future developer understanding.
+
+7) Integrating multi class detection, ingesting entire pyrenote data.
+
+8) user annotation clustering, categorizing complexity of data (Annotations of recordings).
+* visualize process on Jupyter notebook? Transparent Ai

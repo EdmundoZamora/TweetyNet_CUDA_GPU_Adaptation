@@ -56,8 +56,9 @@ def create_pyrenote_tags(data_path, folder):
         tags[t] = i + 1
     # print(tags)
     return tags # returns a dictionary of species and their counts
+
 # works
-def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length):
+def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length): # ignore files param: list
     print(f"Compute features for dataset {os.path.basename(data_path)}")
     
     features = {"uids": [], "X": [], "Y": [], "time_bins": []}
@@ -102,20 +103,29 @@ def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_leng
     # print(tags)
     # return
     ''' 
+
+    #test case : Attila-cinnamomeus-206109.wav
+
+    ignore_files = ['Attila-cinnamomeus-206109.wav']
     
     for f in true_wavs:
         # Y = compute_pyrenote_Y(wav,f, spc, tags, data_path, folder, SR, frame_size, hop_length) # fix this
         # print(computed*(Y.shape[0]//computed))
         print(f)
-        wav = os.path.join(file_path, f)
-        spc,len_audio = wav2spc(wav, fs=SR, n_mels=n_mels) # returns array for display melspec (216,72)
-        time_bins = len_audio/spc.shape[1] # number of seconds in 1 time_bin
-        Y = compute_pyrenote_Y(wav,f, spc, tags, data_path, folder, SR, frame_size, hop_length) # fix this
 
-        features["uids"].append(f)#.extend([f]*freq_axis) # need 31 of f
-        features["X"].append(spc)#.extend(spc_split)#.append(spc)
-        features["Y"].append(Y)#.extend(Y_split)#.append(Y)
-        features["time_bins"].append(time_bins)
+        if f not in ignore_files:
+            wav = os.path.join(file_path, f)
+            spc,len_audio = wav2spc(wav, fs=SR, n_mels=n_mels) # returns array for display melspec (216,72)
+            time_bins = len_audio/spc.shape[1] # number of seconds in 1 time_bin
+            Y = compute_pyrenote_Y(wav,f, spc, tags, data_path, folder, SR, frame_size, hop_length) # fix this
+
+            features["uids"].append(f)#.extend([f]*freq_axis) # need 31 of f
+            features["X"].append(spc)#.extend(spc_split)#.append(spc)
+            features["Y"].append(Y)#.extend(Y_split)#.append(Y)
+            features["time_bins"].append(time_bins)
+        else:
+            pass
+        
     return features
 # works
 def compute_pyrenote_Y(wav, f, spc, tags, data_path, folder, SR, frame_size, hop_length):
@@ -280,7 +290,7 @@ def create_tags(data_path, folder):
         tags[t] = i + 1
     return tags
 
-def compute_feature(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found):
+def compute_feature(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found):# ignore files
     print(f"Compute features for dataset {os.path.basename(data_path)}")
     
     features = {"uids": [], "X": [], "Y": []}
@@ -358,6 +368,8 @@ def random_split_to_fifty(X, Y, uids):
 
         pos, total = get_pos_total(Y)
     return X, Y, uids
+
+# load without files
 
 def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found, use_dump=True):
     mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_dataset.pkl".format(folder))
