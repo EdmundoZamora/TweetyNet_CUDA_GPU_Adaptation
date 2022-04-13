@@ -8,8 +8,12 @@
     upload pyrenote data to cloud cluster
 
     pandas jpnb to select files for trainging and testing.
+        1. a dataframe to negate the files to train-on, or selects the files to train on.
 
         
+
+
+
 
 K-folds cross validation.
 https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html
