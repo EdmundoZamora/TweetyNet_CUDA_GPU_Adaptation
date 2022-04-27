@@ -11,10 +11,6 @@
         1. a dataframe to negate the files to train-on, or selects the files to train on.
 
         
-
-
-
-
 K-folds cross validation.
 https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html
 
@@ -33,3 +29,25 @@ https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.
 
 8) user annotation clustering, categorizing complexity of data (Annotations of recordings).
 * visualize process on Jupyter notebook? Transparent Ai
+
+
+Three big goals:
+
+1) Ingest data using a single process (pyrenote process)
+    Move the pyha integrations into the GPU model
+
+2) File selection and ignoring for training and testing
+    Done in apply feature segment.
+    For species specific training.
+    determine flaws or files perhaps like signal to noise ratio.
+
+-#P
+3) Uploading entire pyrenote data on cluster and training on it
+    For performance benchmarking purpose
+
+    From here move into k-fold cv.
+
+Other big goals:
+
+4) Multiclass detection
+5) Documentation of entire library

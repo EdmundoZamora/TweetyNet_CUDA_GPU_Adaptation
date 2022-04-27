@@ -2,7 +2,8 @@ import numpy as np
 import os
 import pandas as pd
 import sys
-
+# Turns data annotations into Kaleidoscope format
+# Data annotations are required to have Onset and Duration and Identification (file name, species name, annotator name)
 # list file names and take their serial number
 fnames = os.listdir(os.path.join(r"data\raw\NIPS4B_BIRD_CHALLENGE_TRAIN_TEST_WAV","temporal_annotations_nips4b"))
 csvs = [f[-7:] for f in fnames]

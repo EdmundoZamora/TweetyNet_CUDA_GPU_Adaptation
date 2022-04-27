@@ -58,7 +58,7 @@ def create_pyrenote_tags(data_path, folder):
     return tags # returns a dictionary of species and their counts
 
 # works
-def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length): # ignore files param: list
+def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length,ignore_files): # ignore files param: list
     print(f"Compute features for dataset {os.path.basename(data_path)}")
     
     features = {"uids": [], "X": [], "Y": [], "time_bins": []}
@@ -106,7 +106,7 @@ def compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_leng
 
     #test case : Attila-cinnamomeus-206109.wav
 
-    ignore_files = ['Attila-cinnamomeus-206109.wav']
+    ignore_files = ["Attila-cinnamomeus-206109.wav","nips4b_birds_trainfile001.wav"]
     
     for f in true_wavs:
         # Y = compute_pyrenote_Y(wav,f, spc, tags, data_path, folder, SR, frame_size, hop_length) # fix this
@@ -197,13 +197,13 @@ def calc_pyrenote_Y(x, sr, spc, annotation, tags, frame_size, hop_length):
         # return
     return y
 # works
-def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, use_dump=True):
+def load_pyrenote_dataset(data_path, folder, SR, n_mels, frame_size, hop_length,ignore_files, use_dump=True):
     mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_dataset.pkl".format(folder))
     if os.path.exists(mel_dump_file) and use_dump:
         with open(mel_dump_file, "rb") as f:
             dataset = pickle.load(f)
     else:
-        dataset = compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length)
+        dataset = compute_pyrenote_feature(data_path, folder, SR, n_mels, frame_size, hop_length,ignore_files)
         with open(mel_dump_file, "wb") as f:
             pickle.dump(dataset, f)
     # print(f'dataset is {dataset}')
@@ -290,7 +290,7 @@ def create_tags(data_path, folder):
         tags[t] = i + 1
     return tags
 
-def compute_feature(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found):# ignore files
+def compute_feature(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found, ignore_files):# ignore files
     print(f"Compute features for dataset {os.path.basename(data_path)}")
     
     features = {"uids": [], "X": [], "Y": []}
@@ -302,14 +302,18 @@ def compute_feature(data_path, folder, SR, n_mels, frame_size, hop_length, nonBi
     "annotations in the format annotation_{folder}xxx.csv"
     
     tags = create_tags(data_path, folder)
-    
+    # ignore_files = ["nips4b_birds_trainfile001.wav"] # works
     for f in filenames:
-		#signal, SR = downsampled_mono_audio(signal, sample_rate, SR)
-        spc, _ = wav2spc(os.path.join(data_path, folder, f), fs=SR, n_mels=n_mels)
-        Y = compute_Y(f, spc, tags, data_path, folder, SR, frame_size, hop_length, nonBird_labels, found)
-        features["uids"].append("0_"+f)
-        features["X"].append(spc)
-        features["Y"].append(Y)
+        if f not in ignore_files:
+            #signal, SR = downsampled_mono_audio(signal, sample_rate, SR)
+            spc, _ = wav2spc(os.path.join(data_path, folder, f), fs=SR, n_mels=n_mels)
+            Y = compute_Y(f, spc, tags, data_path, folder, SR, frame_size, hop_length, nonBird_labels, found)
+            features["uids"].append("0_"+f)
+            features["X"].append(spc)
+            features["Y"].append(Y)
+        else:
+            print(f)
+            pass
     return features
 
 def compute_Y(f, spc, tags, data_path, folder, SR, frame_size, hop_length, nonBird_labels, found):
@@ -371,13 +375,13 @@ def random_split_to_fifty(X, Y, uids):
 
 # load without files
 
-def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found, use_dump=True):
+def load_dataset(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found, ignore_files, use_dump=True):
     mel_dump_file = os.path.join(data_path, "downsampled_{}_bin_mel_dataset.pkl".format(folder))
     if os.path.exists(mel_dump_file) and use_dump:
         with open(mel_dump_file, "rb") as f:
             dataset = pickle.load(f)
     else:
-        dataset = compute_feature(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found)
+        dataset = compute_feature(data_path, folder, SR, n_mels, frame_size, hop_length, nonBird_labels, found, ignore_files)
         with open(mel_dump_file, "wb") as f:
             pickle.dump(dataset, f)
 

@@ -11,6 +11,7 @@ from scoring import*
 from graphs import*
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import KFold
 from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 # from torchsummary import summary
 
@@ -37,7 +38,7 @@ from TweetyNetModel import TweetyNetModel
 
 from Load_data_functions import load_dataset, load_pyrenote_dataset, load_pyrenote_splits, load_splits
 
-def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, window_size, dataset):
+def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, window_size, dataset, ignore_files):
     train = True
     fineTuning = False
     print("----------------------------------------------------------------------------------------------")
@@ -46,7 +47,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     # load_data_set returns variables which get fed into model builder 
     if dataset == "NIPS":
         folder = 'train'
-        X, Y, uids = load_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, use_dump=True)
+        X, Y, uids = load_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, nonBird_labels, found, ignore_files, use_dump=True)
         #print(f'X shape {X.shape}') #number of birds, rows of each data column of each data.
         #print(f'len of X {len(X)}')
         #bird1 = X[0] #data point, [0][0] feature value of dp, yes
@@ -106,7 +107,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
         
     elif dataset == "PYRE":
         folder = "Mixed_Bird-20220126T212121Z-003"
-        X, Y, uids, time_bins = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH)
+        X, Y, uids, time_bins = load_pyrenote_dataset(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH,ignore_files)
         all_tags = [0,1]
         # need
         #Split by file make CPU and GPU have the same files in splits though
@@ -261,7 +262,7 @@ def apply_features(datasets_dir, folder, SR, n_mels, FRAME_SIZE, HOP_LENGTH, non
     #endregion
     # return all_tags, n_mels, train_dataset, val_dataset, test_dataset, HOP_LENGTH, SR
 
-def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, time_bins, lr, batch_size, epochs, outdir, ):
+def model_build(all_tags, n_mels, train_dataset, val_dataset, Skip, time_bins, lr, batch_size, epochs, outdir, ):
     
     if Skip:
         for f in os.listdir(outdir):
@@ -317,7 +318,9 @@ def model_build( all_tags, n_mels, train_dataset, val_dataset, Skip, time_bins, 
 
     return model, date_str
 
-def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graphs,window_size): # How can we evaluauate on a specific wav file though?? and show time in the csv? and time on a spectrorgam? ¯\_(ツ)_/¯
+
+
+def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graphs,window_size,batch_size): # How can we evaluauate on a specific wav file though?? and show time in the csv? and time on a spectrorgam? ¯\_(ツ)_/¯
     
     model_weights = os.path.join(outdir,f"model_weights-{date_str}.h5") # time sensitive file title
     tweetynet = model
@@ -340,3 +343,37 @@ def evaluate(model,test_dataset, date_str, hop_length, sr, outdir,temporal_graph
     file_graph_temporal_rates(temporal_graphs) 
     
     return print("Finished Classifcation")
+
+
+# add to run.py after evaluate. terminal command : kfold
+def kfold_crossvalidation(tweetynet, dataset, n = 5, batch_size=64, epochs=100, lr=.005, hop_length=1024, sr=44100, window_size=2):
+
+    train_hist = []
+    test_preds = []
+    kf = KFold(n_splits = n)
+
+    for fold,(train_idx,test_idx) in enumerate(kf.split(dataset)): # default folds is five, can be specified in funct
+        print('------------fold no---------{}----------------------'.format(fold))
+        train_subsampler = torch.utils.data.SubsetRandomSampler(train_idx)
+        test_subsampler = torch.utils.data.SubsetRandomSampler(test_idx)
+
+        trainloader = torch.utils.data.DataLoader(
+                            dataset, 
+                            batch_size=batch_size, sampler=train_subsampler)
+                            
+        testloader = torch.utils.data.DataLoader(
+                            dataset,
+                            batch_size=batch_size, sampler=test_subsampler)
+
+        tweetynet.reset_weights()
+
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(tweetynet.optimizer,
+                                                        max_lr=lr,
+                                                        steps_per_epoch=int(len(trainloader)),
+                                                        epochs=epochs,
+                                                        anneal_strategy='linear')
+        
+        train_hist.append(tweetynet.training_step(trainloader, testloader, scheduler, epochs))
+        test_preds.append(tweetynet.testing_step(testloader, hop_length, sr, window_size))
+
+        return train_hist, test_preds # get average of folds here
