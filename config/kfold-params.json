@@ -1,0 +1,9 @@
+{
+    "n" : 5, 
+    "batch_size":64, 
+    "epochs":10, 
+    "lr":0.005, 
+    "hop_length":1024, 
+    "sr":44100, 
+    "window_size":3
+}

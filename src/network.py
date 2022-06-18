@@ -188,7 +188,7 @@ class TweetyNet(nn.Module):
         # for self.fc, in_features = hidden_size * 2 because LSTM is bidirectional
         # so we get hidden forward + hidden backward as output
 
-        self.fc = nn.Linear(in_features=self.hidden_size * 2, out_features=num_classes) # curr
+        self.fc = nn.Linear(in_features=self.hidden_size * 2, out_features=num_classes) # curr # num encoded species.
         # self.fc = nn.Linear(in_features=self.hidden_size * 2, out_features=1) #tutor
 
     def forward(self, x):

@@ -1,6 +1,5 @@
 {
     "outdir":"data/out",
-    "temporal_graphs":10,
-    "window_size":2,
-    "batchsize":64
+    "temporal_graphs":3,
+    "window_size":3
 }

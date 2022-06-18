@@ -15,7 +15,7 @@ sys.path.insert(0, 'src')
 
 import env_setup
 from etl import get_data
-from NIPS_training import apply_features, model_build, evaluate
+from NIPS_training import apply_features, kfold_crossvalidation, model_build, evaluate
 
 
 def main(targets):
@@ -77,6 +77,28 @@ def main(targets):
             eval_cfg = json.load(fh)
         # evaluates and stores csvs to out/
         evaluate(model, test_dataset, date_str, hop_length, sr, **eval_cfg)
+    
+    if 'validate' in targets:
+
+        if 'skip' in targets:
+            if "nips" in targets:
+                dataset = os.path.join('data', 'raw',"NIPS4B_BIRD_CHALLENGE_TRAIN_TEST_WAV")
+            elif "pyre" in targets:
+                dataset = os.path.join('data',"PYRE")
+            
+            with open('config/kfold-params.json') as fh:
+                kfold_cfg = json.load(fh)
+
+            train_hist, test_preds = kfold_crossvalidation(model, dataset, **kfold_cfg)
+            print(train_hist)
+            # print(test_preds)
+            for i in range(5):
+                test_preds[i][0].to_csv(os.path.join("data/out",f"kfold_test_preds{i}.csv"))
+
+            # test_preds[0][1].to_csv(os.path.join("data/out","kfold_test_preds_time.csv"))
+
+
+            
 
     return
 
